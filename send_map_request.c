@@ -10,7 +10,7 @@
  *	dmm@1-4-5.net
  *	Tue Apr 14 14:48:13 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.30 2009/07/13 14:36:49 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.31 2009/07/13 22:38:21 dmm Exp $
  *
  */
 
@@ -46,16 +46,17 @@
  *	dmm@1-4-5.net
  *	Thu Apr 16 14:46:51 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.30 2009/07/13 14:36:49 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.31 2009/07/13 22:38:21 dmm Exp $
  *
  */
 
-int send_map_request(s,nonce,before,eid,map_resolver)
+int send_map_request(s,nonce,before,eid,map_resolver,src_ip_addr)
      int		s;
      unsigned int	nonce;
      struct timeval     *before;
      char		*eid;
      char		*map_resolver;
+     char		*src_ip_addr;
 {
     u_char			packet[MAX_IP_PACKET];	
     struct sockaddr_in		mr;
@@ -77,7 +78,15 @@ int send_map_request(s,nonce,before,eid,map_resolver)
      *
      */
 
-    get_my_ip_addr(&my_addr); 
+    if (src_ip_addr) {
+        if (debug)
+	    fprintf(stderr, "Setting source IP address to %s\n", src_ip_addr);
+	my_addr.s_addr = inet_addr(src_ip_addr);
+    } else {
+      get_my_ip_addr(&my_addr); 
+      if (debug)
+	fprintf(stderr, "Using source address: %s\n", inet_ntoa(my_addr));
+    }
 
     /*
      *	make sure packet is clean

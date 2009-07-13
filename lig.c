@@ -7,7 +7,7 @@
  *	dmm@1-4-5.net
  *	Thu Apr  9 09:44:57 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.40 2009/07/13 14:40:56 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.41 2009/07/13 22:38:21 dmm Exp $
  *
  */
 
@@ -49,6 +49,7 @@ int main(int argc, char *argv[])
 
     char *eid          = NULL;
     char *map_resolver = NULL;
+    char *src_ip_addr  = NULL;
     char *eid_name     = NULL;
     char *mr_name      = NULL;
     int  eid_addrtype;
@@ -64,7 +65,7 @@ int main(int argc, char *argv[])
      */  
 
     int  opt           = 0;
-    char *optstring    = "c:dm:t:";
+    char *optstring    = "c:dm:t:s:";
     int  count         = COUNT;
     int	 timeout       = MAP_REPLY_TIMEOUT;
 
@@ -84,6 +85,9 @@ int main(int argc, char *argv[])
 	    break;
 	case 'm':
 	    map_resolver = strdup(optarg);
+	    break;
+	case 's':
+	    src_ip_addr = strdup(optarg);
 	    break;
 	case 't':
 	    timeout = atoi(optarg);		/* seconds */
@@ -136,6 +140,7 @@ int main(int argc, char *argv[])
 	perror ("strdup(map_resolver)");
 	exit(BAD);
     }
+
 
     /*
      * gethostbyname seems to fail if eid is 
@@ -251,7 +256,7 @@ int main(int argc, char *argv[])
 		   mr_name,
 		   eid_name);
 
-	if (send_map_request(s, nonce[i], &before, eid, map_resolver)) {
+	if (send_map_request(s, nonce[i], &before, eid, map_resolver, src_ip_addr)) {
 	    perror("can't send map-request");
 	    exit(BAD);
 	}

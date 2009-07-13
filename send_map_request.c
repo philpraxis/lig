@@ -10,7 +10,7 @@
  *	dmm@1-4-5.net
  *	Tue Apr 14 14:48:13 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.26 2009/04/28 19:08:16 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.30 2009/07/13 14:36:49 dmm Exp $
  *
  */
 
@@ -46,7 +46,7 @@
  *	dmm@1-4-5.net
  *	Thu Apr 16 14:46:51 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.26 2009/04/28 19:08:16 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.30 2009/07/13 14:36:49 dmm Exp $
  *
  */
 
@@ -54,8 +54,8 @@ int send_map_request(s,nonce,before,eid,map_resolver)
      int		s;
      unsigned int	nonce;
      struct timeval     *before;
-     char		*map_resolver;
      char		*eid;
+     char		*map_resolver;
 {
     u_char			packet[MAX_IP_PACKET];	
     struct sockaddr_in		mr;
@@ -67,8 +67,6 @@ int send_map_request(s,nonce,before,eid,map_resolver)
     int				ip_len = 0;
     int				packet_len = 0;
     int				nbytes = 0;
-
-    printf("Send map-request to %s for %s ...\n", map_resolver, eid);
 
     /*
      *   get my IP address
@@ -114,8 +112,8 @@ int send_map_request(s,nonce,before,eid,map_resolver)
     map_request = (struct map_request_pkt *) CO(udph,  sizeof(struct udphdr));
 
     ip_len      = sizeof(struct ip)     +
-	          sizeof(struct udphdr) +
-	          sizeof(struct map_request_pkt);
+	sizeof(struct udphdr) +
+	sizeof(struct map_request_pkt);
 
     packet_len  = ip_len + sizeof(struct lisphdr);
 

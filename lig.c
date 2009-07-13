@@ -7,7 +7,7 @@
  *	dmm@1-4-5.net
  *	Thu Apr  9 09:44:57 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.37 2009/05/01 19:51:50 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.40 2009/07/13 14:40:56 dmm Exp $
  *
  */
 
@@ -49,6 +49,8 @@ int main(int argc, char *argv[])
 
     char *eid          = NULL;
     char *map_resolver = NULL;
+    char *eid_name     = NULL;
+    char *mr_name      = NULL;
     int  eid_addrtype;
     int  eid_length;
     int  mr_addrtype;
@@ -121,10 +123,17 @@ int main(int argc, char *argv[])
 	perror ("strdup(argv[optind])");
 	exit(BAD);
     }
-
+    if ((eid_name = strdup(eid)) == NULL) {
+	perror ("strdup(eid)");
+	exit(BAD);
+    }
     if (map_resolver == NULL) {
 	fprintf(stderr, "-m <map resolver> not specified\n");
 	fprintf(stderr, USAGE, argv[0]);
+	exit(BAD);
+    }
+    if ((mr_name = strdup(map_resolver)) == NULL) {
+	perror ("strdup(map_resolver)");
 	exit(BAD);
     }
 
@@ -230,6 +239,17 @@ int main(int argc, char *argv[])
 
     for (i = 0; i < count; i++) {	
 	nonce[i] = random();
+
+	if (debug) 
+	    printf("Send map-request to %s (%s) for %s (%s) ...\n",
+		   mr_name,
+		   map_resolver,
+		   eid_name,
+		   eid);
+	else 
+	    printf("Send map-request to %s for %s ...\n",
+		   mr_name,
+		   eid_name);
 
 	if (send_map_request(s, nonce[i], &before, eid, map_resolver)) {
 	    perror("can't send map-request");

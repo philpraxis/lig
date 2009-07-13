@@ -11,7 +11,7 @@
  *	dmm@1-4-5.net
  *	Mon Jul  6 09:45:50 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/get_my_ip_addr.c,v 1.1 2009/07/06 17:17:21 dmm Exp dmm $
+ *	$Header: /home/dmm/lisp/lig/RCS/get_my_ip_addr.c,v 1.5 2009/07/12 20:48:44 dmm Exp $
  *
  */
 
@@ -55,14 +55,15 @@ void get_my_ip_addr(my_addr)
     for (i = 0; i < count; i++) {
 	s_in = (struct sockaddr_in*) &conf.ifc_req[i].ifr_addr;
 	if (strcmp(LOOPBACK,inet_ntoa(s_in->sin_addr))) {
-	    if (debug) {
-		fprintf(stderr,
-			"get_my_ip_addr: using %s (%s)\n", 
-		       inet_ntoa(s_in->sin_addr),
-		       conf.ifc_req[i].ifr_name);
-	    }
-            memcpy((void *) my_addr,
-		   (void *) &(s_in->sin_addr),
+
+#if (DEBUG > 3)
+	    fprintf(stderr,
+		    "get_my_ip_addr: using %s (%s)\n", 
+		    inet_ntoa(s_in->sin_addr),
+		    conf.ifc_req[i].ifr_name);
+#endif
+
+            memcpy((void *) my_addr, (void *) &(s_in->sin_addr),
 		   sizeof(struct in_addr));
             free(conf.ifc_buf);
 	    return;

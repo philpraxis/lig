@@ -10,7 +10,7 @@
  *	dmm@1-4-5.net
  *	Tue Apr 14 14:48:13 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.32 2009/07/13 22:48:36 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.33 2009/07/14 00:01:04 dmm Exp $
  *
  */
 
@@ -46,7 +46,7 @@
  *	dmm@1-4-5.net
  *	Thu Apr 16 14:46:51 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.32 2009/07/13 22:48:36 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.33 2009/07/14 00:01:04 dmm Exp $
  *
  */
 
@@ -79,13 +79,13 @@ int send_map_request(s,nonce,before,eid,map_resolver,src_ip_addr)
      */
 
     if (src_ip_addr) {
+	my_addr.s_addr = inet_addr(src_ip_addr); 
 	if (debug)
 	    fprintf(stderr, "Setting source IP address to %s\n", src_ip_addr);
-	my_addr.s_addr = inet_addr(src_ip_addr); 
     } else {
+      get_my_ip_addr(&my_addr); 
       if (debug)
 	fprintf(stderr, "Using source address: %s\n", inet_ntoa(my_addr));
-      get_my_ip_addr(&my_addr); 
     }
 
     /*

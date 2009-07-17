@@ -7,7 +7,7 @@
  *	dmm@1-4-5.net
  *	Thu Apr  9 09:44:57 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.41 2009/07/13 22:38:21 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig.new/RCS/lig.c,v 1.42 2009/07/17 19:32:49 dmm Exp $
  *
  */
 
@@ -42,6 +42,7 @@ int main(int argc, char *argv[])
     struct timeval	before;
     struct timeval	after;
     struct protoent	*proto;
+    struct sockaddr_in	 from;
 
     /*
      * Remember the requested eid and map resolver properties here 
@@ -58,7 +59,7 @@ int main(int argc, char *argv[])
     int  mr_length;
 
     unsigned int iseed;			/* initial random number generator */
-    int i;
+    int i;				/* generic counter */
 
     /*
      *	parse args
@@ -202,8 +203,10 @@ int main(int argc, char *argv[])
     }
 
     /*
-     *	For some reason I need to receive on a RAW socket
-     *  (Linux anyway).
+     *	I need to receive on a RAW socket. The reason is that 
+     *  the packet is encapsulated so the inner UDP header is 
+     *  unrelated to where I'm sending it (i.e., its an EMR).
+     *
      */
 
     if ((r = socket(AF_INET,SOCK_RAW,proto->p_proto)) < 0) {
@@ -237,6 +240,30 @@ int main(int argc, char *argv[])
     iseed = (unsigned int) time (NULL);
     srandom(iseed);
 
+    /* 
+     *	Set up to receive a map-reply.
+     *
+     *	Use this for the source port on the innner UDP header, and for
+     *  the dest port when receiving a map-reply. Try to bind to this 
+     *  port; don't think this really works...
+     *
+     */
+
+    memset(packet, 0, MAX_IP_PACKET);
+    memset((char *) &from, 0, sizeof(from));
+
+    emr_inner_src_port   = random();
+    from.sin_family      = AF_INET;
+    from.sin_port        = emr_inner_src_port;
+    from.sin_addr.s_addr = INADDR_ANY;
+
+    /* this doesn't work, i.e., we still receive packets to other ports */
+
+    if (bind(r,(struct sockaddr *) &from, sizeof(struct sockaddr_in)) == -1) {
+	perror("bind");
+	exit(BAD);
+    }
+
     /*
      *	loop until either we get a map-reply or we 
      *	try count times
@@ -267,8 +294,8 @@ int main(int argc, char *argv[])
 		return(BAD);
 	    }
 
-	    if (!get_map_reply(r, packet))	/* get a packet */
-		continue;			/* not a LISP control packet */
+	    if (!get_map_reply(r, packet))		/* get a packet */
+		continue;				/* not a LISP control packet */
 
 	    /*
              *	We have a packet that has UDP source port = 4342.

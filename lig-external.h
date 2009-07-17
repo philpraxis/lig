@@ -9,13 +9,14 @@
  *	dmm@1-4-5.net
  *	Thu Apr  9 12:01:29 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig-external.h,v 1.10 2009/07/06 17:46:46 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig.new/RCS/lig-external.h,v 1.11 2009/07/17 19:32:49 dmm Exp $
  *
  */
 
 extern	struct protoent *proto;
 extern	int optind;
 extern  int debug;
+extern	ushort emr_inner_src_port;
 
 extern void   *memcpy();
 extern void   *memset();

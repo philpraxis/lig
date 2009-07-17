@@ -11,7 +11,7 @@
  *	dmm@1-4-5.net
  *	Mon Jul  6 09:45:50 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/get_my_ip_addr.c,v 1.5 2009/07/12 20:48:44 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig.new/RCS/get_my_ip_addr.c,v 1.6 2009/07/17 16:25:09 dmm Exp $
  *
  */
 
@@ -66,6 +66,7 @@ void get_my_ip_addr(my_addr)
             memcpy((void *) my_addr, (void *) &(s_in->sin_addr),
 		   sizeof(struct in_addr));
             free(conf.ifc_buf);
+	    close(s);
 	    return;
 	}
     }

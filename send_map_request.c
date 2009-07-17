@@ -10,7 +10,7 @@
  *	dmm@1-4-5.net
  *	Tue Apr 14 14:48:13 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.33 2009/07/14 00:01:04 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig.new/RCS/send_map_request.c,v 1.37 2009/07/17 19:32:49 dmm Exp $
  *
  */
 
@@ -25,7 +25,7 @@
  *
  *	Here's the packet we need to build:
  *
- *                IP header (kernel does this on socoket s)
+ *                IP header (kernel does this on socket s)
  *                UDP header (DEST PORT = 4341, UDP socket/kernel does this)
  *       lisph -> LISP header
  *  packet,iph -> IP header (SRC = this host,  DEST = eid)
@@ -46,7 +46,7 @@
  *	dmm@1-4-5.net
  *	Thu Apr 16 14:46:51 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.33 2009/07/14 00:01:04 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig.new/RCS/send_map_request.c,v 1.37 2009/07/17 19:32:49 dmm Exp $
  *
  */
 
@@ -160,12 +160,12 @@ int send_map_request(s,nonce,before,eid,map_resolver,src_ip_addr)
      */
 
 #ifdef BSD
-    udph->uh_sport = htonl(nonce);
+    udph->uh_sport = htons(emr_inner_src_port);
     udph->uh_dport = htons(LISP_CONTROL_PORT);
-    udph->uh_ulen   = htons(sizeof(struct udphdr) + sizeof(struct map_request_pkt));
-    udph->uh_sum  = 0;
+    udph->uh_ulen  = htons(sizeof(struct udphdr) + sizeof(struct map_request_pkt));
+    udph->uh_sum   = 0;
 #else
-    udph->source = htonl(nonce);
+    udph->source = htonl(emr_inner_src_port);
     udph->dest   = htons(LISP_CONTROL_PORT);
     udph->len    = htons(sizeof(struct udphdr) + sizeof(struct map_request_pkt));
     udph->check  = 0;
@@ -173,41 +173,43 @@ int send_map_request(s,nonce,before,eid,map_resolver,src_ip_addr)
     /*
      * Build the Map-Request
      *
-     * Map-Request Message Format
-     *  
-     *         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-     *         |S|                     Locator Reach Bits                      |
-     *         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-     *         |                             Nonce                             |
-     *         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-     *         |Type=1 |A|R|            Reserved               | Record Count  |
-     *         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-     *         |         Source-EID-AFI        |            ITR-AFI            |
-     *         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-     *         |                   Source EID Address  ...                     |
-     *         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-     *         |                Originating ITR RLOC Address ...               |
-     *         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-     *       / |   Reserved    | EID mask-len  |        EID-prefix-AFI         |
-     *  Rec <  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-     *       \ |                       EID-prefix  ...                         |
-     *         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-     *         |                   Map-Reply Record  ...                       |
-     *         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-     *         |                     Mapping Protocol Data                     |
-     *         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+     * 6.1.2.  Map-Request Message Format
+     *
+     *
+
+     *         0                   1                   2                   3
+     *         0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+     *        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+     *        |Type=1 |A|M|P|S|           Reserved            | Record Count  |
+     *        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+     *        |                             Nonce                             |
+     *        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+     *        |         Source-EID-AFI        |            ITR-AFI            |
+     *        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+     *        |                   Source EID Address  ...                     |
+     *        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+     *        |                Originating ITR RLOC Address ...               |
+     *        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+     *      / |   Reserved    | EID mask-len  |        EID-prefix-AFI         |
+     *    Rec +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+     *      \ |                       EID-prefix  ...                         |
+     *        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+     *        |                   Map-Reply Record  ...                       |
+     *        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+     *        |                     Mapping Protocol Data                     |
+     *        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+     *
      */
 
 
-    map_request->lisp_loc_reach_bits         = 0;
     map_request->smr_bit                     = 0;
-    map_request->lisp_nonce                  = htonl(nonce); 
-    map_request->lisp_type                   = 1;
-    map_request->auth_bit                    = 0;
+    map_request->rloc_probe                  = 0;
     map_request->map_data_present            = 0;
-    map_request->rsvd                        = 0;
-    map_request->reserved0                   = 0;
+    map_request->auth_bit                    = 0;
+    map_request->lisp_type                   = 1;	/* Map-Request */
+    map_request->reserved                    = htons(0);
     map_request->record_count                = 1;
+    map_request->lisp_nonce                  = htonl(nonce); 
     map_request->source_eid_afi              = htons(LISP_AFI_IP);
     map_request->itr_afi                     = htons(LISP_AFI_IP);
     map_request->source_eid.s_addr           = inet_addr("0.0.0.0");

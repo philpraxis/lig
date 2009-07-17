@@ -8,7 +8,7 @@
  *	dmm@1-4-5.net
  *	Thu Apr 16 14:50:33 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig.h,v 1.35 2009/07/06 17:46:46 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig.new/RCS/lig.h,v 1.37 2009/07/17 19:32:49 dmm Exp $
  *
  */
 
@@ -33,6 +33,7 @@
 #include	<sys/ioctl.h>
 
 typedef enum			{FALSE,TRUE} boolean;
+
 #define GOOD			  0
 #define BAD			  -1
 #define	MAX_IP_PACKET		4096
@@ -75,60 +76,58 @@ typedef enum			{FALSE,TRUE} boolean;
 /*
  * Map-Request Message Format
  *  
- *         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- *         |S|                     Locator Reach Bits                      |
- *         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- *         |                             Nonce                             |
- *         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- *         |Type=1 |A|R|            Reserved               | Record Count  |
- *         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- *         |         Source-EID-AFI        |            ITR-AFI            |
- *         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- *         |                   Source EID Address  ...                     |
- *         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- *         |                Originating ITR RLOC Address ...               |
- *         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- *       / |   Reserved    | EID mask-len  |        EID-prefix-AFI         |
- *  Rec <  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- *       \ |                       EID-prefix  ...                         |
- *         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- *         |                   Map-Reply Record  ...                       |
- *         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- *         |                     Mapping Protocol Data                     |
- *         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- */
+ *
+ *
+ *      0                   1                   2                   3
+ *      0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+ *     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *     |Type=1 |A|M|P|S|           Reserved            | Record Count  |
+ *     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *     |                             Nonce                             |
+ *     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *     |         Source-EID-AFI        |            ITR-AFI            |
+ *     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *     |                   Source EID Address  ...                     |
+ *     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *     |                Originating ITR RLOC Address ...               |
+ *     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *   / |   Reserved    | EID mask-len  |        EID-prefix-AFI         |
+ * Rec +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *   \ |                       EID-prefix  ...                         |
+ *     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *     |                   Map-Reply Record  ...                       |
+ *     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *     |                     Mapping Protocol Data                     |
+ *     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *
+*/
 
 
 struct map_request_pkt {
 #ifdef __LITTLE_ENDIAN
-    unsigned int	lisp_loc_reach_bits:31;
-    unsigned int	smr_bit:1;
+	u_char          smr_bit:1;
+	u_char          rloc_probe:1;
+	u_char          map_data_present:1;
+	u_char          auth_bit:1;
+	u_char          lisp_type:4;
 #else
-    unsigned int	smr_bit:1;
-    unsigned int	lisp_loc_reach_bits:31;
+	u_char          lisp_type:4;
+	u_char          auth_bit:1;
+	u_char          map_data_present:1;
+	u_char          rloc_probe:1;
+	u_char          smr_bit:1;
 #endif
-    unsigned int	lisp_nonce;
-#ifdef __LITTLE_ENDIAN
-    u_char		rsvd:2;
-    u_char		map_data_present:1;
-    u_char		auth_bit:1;
-    u_char		lisp_type:4;
-#else
-    u_char		lisp_type:4;
-    u_char		auth_bit:1;
-    u_char		map_data_present:1;
-    u_char		rsvd:2;
-#endif
-    ushort		reserved0;
-    u_char		record_count;
-    ushort		source_eid_afi;
-    ushort		itr_afi;
-    struct in_addr	source_eid;
-    struct in_addr	originating_itr_rloc;
-    u_char		reserved1;
-    u_char		eid_mask_len;
-    ushort		eid_prefix_afi;
-    struct in_addr	eid_prefix;
+	ushort          reserved;
+	u_char          record_count;
+	unsigned int    lisp_nonce;
+	ushort          source_eid_afi;
+	ushort          itr_afi;
+	struct in_addr	source_eid;
+	struct in_addr	originating_itr_rloc;
+	u_char		reserved1;
+	u_char		eid_mask_len;
+	ushort		eid_prefix_afi;
+	struct in_addr	eid_prefix;
 } __attribute__ ((__packed__));
 
 
@@ -147,51 +146,49 @@ struct lisphdr {
 /*
  * Map-Reply Message Format
  *   
- *         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- *         |x|                     Locator Reach Bits                      |
- *         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- *         |                             Nonce                             |
- *         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- *         |Type=2 |              Reserved                 | Record Count  |
- *  +----> +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- *  |      |                          Record  TTL                          |
- *  |      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- *  R      | Locator Count | EID mask-len  |A| act |       Reserved        |
- *  e      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- *  c      |           Reserved            |            EID-AFI            |
- *  o      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- *  r      |                          EID-prefix                           |
- *  d      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- *  |     /|    Priority   |    Weight     |  M Priority   |   M Weight    |
- *  |    / +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- *  |  Loc |           Unused Flags      |R|           Loc-AFI             | 
- *  |    \ +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- *  |     \|                             Locator                           |
- *  +--->  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- *         |                     Mapping Protocol Data                     |
- *         +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *
+ *      0                   1                   2                   3
+ *      0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+ *     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *     |Type=2 |P|            Reserved                 | Record Count  |
+ *     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *     |                             Nonce                             |
+ * +-> +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ * |   |                          Record  TTL                          |
+ * |   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ * R   | Locator Count | EID mask-len  |A| ACT |  Reserved             |
+ * e   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ * c   |           Reserved            |            EID-AFI            |
+ * o   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ * r   |                          EID-prefix                           |
+ * d   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ * |  /|    Priority   |    Weight     |  M Priority   |   M Weight    |
+ * | L +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ * | o |           Unused Flags      |R|           Loc-AFI             |
+ * | c +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ * |  \|                             Locator                           |
+ * +-> +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *     |                     Mapping Protocol Data                     |
+ *     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *
  */
 
 struct map_reply_pkt {
 #ifdef __LITTLE_ENDIAN
-    unsigned int   lisp_loc_reach_bits:31;
-    unsigned int   not_used:1;
+     int            rsvd:3;
+     int            rloc_probe:1;
+     int            lisp_type:4;
 #else
-    unsigned int   not_used:1;
-    unsigned int   lisp_loc_reach_bits:31;
+     int            lisp_type:4;
+     int            rloc_probe:1;
+     int            rsvd:3;
 #endif
-    unsigned int   lisp_nonce;
-#ifdef __LITTLE_ENDIAN
-    int            rsvd:4;
-    int            lisp_type:4;
-#else
-    int            lisp_type:4;
-    int            rsvd:4;
-#endif
-    ushort         reserved;
-    u_char         record_count;
-    u_char         data[0];
+     ushort         reserved;
+     u_char         record_count;
+     unsigned int   lisp_nonce;
+     u_char         data[0];
 }  __attribute__ ((__packed__));
+
 
 
 struct lisp_map_reply_eidtype {
@@ -229,3 +226,10 @@ struct lisp_map_reply_loctype {
     u_char  locator[0];
 } __attribute__ ((__packed__));
 
+
+/*
+ *  source port in the EMR's inner UDP header. Try to listen  for 
+ *  this port in the returned map-reply. Doesn't really work...
+ */
+
+ushort emr_inner_src_port;

@@ -8,94 +8,13 @@
  *	dmm@1-4-5.net
  *	Thu Apr 23 15:37:01 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lib.c,v 1.21 2009/07/06 17:17:21 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig.new/RCS/lib.c,v 1.24 2009/07/17 19:32:49 dmm Exp $
  *
  */
 
 
 #include	"lig.h"
 #include	"lig-external.h"
-
-
-/*
- *	Print a map_reply packet. The output format matches Dino's
- *	(to the extent possible).
- *
- *
- */
-
-void print_map_reply(map_reply,requested_eid,mr_to,mr_from,elapsed_time,from)
-    struct map_reply_pkt *map_reply;
-    char *requested_eid;
-    char *mr_to;
-    char *mr_from;
-    long elapsed_time;
-    struct in_addr *from;
-{
-
-    struct lisp_map_reply_eidtype *eidtype;
-    struct lisp_map_reply_loctype *loctype;
-    struct in_addr		   *eid;
-    struct in_addr		   *locator;
-    char			   pw[8];
-    int				   offset = 0;
-    int				   record_count = 0;
-    int				   locator_count = 0;
-    int				   i;    
-    int				   j;
-
-    printf("Received map-reply from %s with rtt %2.5f sec\n",
-	   mr_from, (double) elapsed_time/1000);
-    printf("\nMapping entry for EID %s:\n", requested_eid);
-
-    record_count = map_reply->record_count;
-
-    /*
-     *	loop through the Records
-     */	
-
-    for (i = 0; i < record_count; i++) {
-	eidtype = (struct lisp_map_reply_eidtype *) &map_reply->data;
-        locator_count = eidtype->loc_count;
-	eid = (struct in_addr *) &eidtype->eid_prefix;
-	printf("%s/%d,", inet_ntoa(*eid),eidtype->eid_mask_len);
-	if (debug) 
-	    printf(" via map-reply, record ttl: %d, %s, nonce: 0x%x\n", 
-		   ntohl(eidtype->record_ttl), 
-		   eidtype->auth_bit ? "auth" : "not auth", 
-		   ntohl(map_reply->lisp_nonce));
-	else
-	    printf(" record ttl: %d\n", ntohl(eidtype->record_ttl)); 
-
-        loctype = (struct lisp_map_reply_loctype *)
-	    CO(eidtype->eid_prefix, sizeof(struct in_addr));
-	
-        printf("  %-18s%-10s%-10s\n","Locator","State","Priority/Weight");
-
-	/*
-         * loop through the Loc's (see lig.h)
-         */
-
-        for (j = 0; j < locator_count; j++) {
-	    locator = (struct in_addr *) &loctype->locator;
-
-            sprintf(pw, "%d/%d", loctype->priority, loctype->weight);
-            printf("  %-18s%-10s%-10s\n",
-		   inet_ntoa(*locator),
-		   loctype->reach_bit ? "up" : "down",
-	           pw);
-	    /*
-             * Find the next "Loc" in this Record
-	     *
-             *	obviously this needs fixed for IPv6 
-             */
-
-            offset = sizeof(struct lisp_map_reply_loctype) + sizeof(struct in_addr);
-	    loctype = (struct lisp_map_reply_loctype *) CO(loctype, offset);
-
-	}
-    }
-}
 
 
 /*
@@ -152,6 +71,11 @@ wait_for_response(s,timeout)
 
 /*
  *	Retrieve a map-reply from socket r
+ *
+ *	Since we currently have to receive on a raw socket, peek the 
+ *	packet and only read it if its actually a map-reply (i.e., has
+ *	source 4342.
+ *
  */
 
 unsigned int get_map_reply(r,packet)
@@ -159,55 +83,35 @@ unsigned int get_map_reply(r,packet)
      u_char  *packet;
 {
 
-    struct sockaddr_in	 from;
-    int                  fromlen = sizeof(struct sockaddr_in);
     struct ip            *iph;
     struct udphdr        *udph;
     struct lisphdr       *lisph;
     struct map_reply_pkt *map_reply;
 
-
-    memset(packet, 0, MAX_IP_PACKET);
-    memset((char *) &from, 0, sizeof(from));
-
-    from.sin_family      = AF_INET;
-    from.sin_port        = htons(0);
-    from.sin_addr.s_addr = INADDR_ANY;
-
-    if (recvfrom(r,
-		 packet,
-		 MAX_IP_PACKET,
-		 0,
-		 (struct sockaddr *) &from,
-		 &fromlen) < 0) {
-	perror("recvfrom");
+    if (recv(r, packet, MAX_IP_PACKET, 0) == -1) {
+	perror("recv");
 	exit(BAD);
     }
-
  
     /*
-     *  LISP control packet ?
+     *  check for LISP control packet...
      */
 
-    iph = (struct ip *) packet;
-    udph      = (struct udphdr *) CO(iph, sizeof(struct ip)); 
+    iph       = (struct ip *)            packet;
+    udph      = (struct udphdr *)        CO(iph, sizeof(struct ip)); 
     map_reply = (struct map_reply_pkt *) CO(udph, sizeof(struct udphdr));
 
-#ifdef BSD
-    if (ntohs(udph->uh_sport) != LISP_CONTROL_PORT) {
-#else
     if (ntohs(udph->source) != LISP_CONTROL_PORT) {
-#endif
 	if (debug)
-	    printf("Packet is not a Map-Reply. Source Port = %d\n",
-#ifdef BSD
-		   ntohs(udph->uh_sport));
-#else
-		   ntohs(udph->source));
-#endif
+	    printf("Packet is not a Map-Reply: IP (%s,%s) UDP (%d,%d))\n",
+		   inet_ntoa(iph->ip_src),
+		   inet_ntoa(iph->ip_dst),
+		   ntohs(udph->source),
+		   ntohs(udph->dest));
 	return(0);			/* not a map-reply */
-    } else
+    } else {
 	return(1);			/* is a map-reply */
+    }
 }
 
 /*
@@ -218,6 +122,7 @@ find_nonce(rnonce, nonce, count)
  unsigned int rnonce;
  unsigned int *nonce;
  int   count;
+
 {
     int i;
 

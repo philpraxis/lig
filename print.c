@@ -5,7 +5,7 @@
  *	dmm@1-4-5.net
  *	Thu Apr 23 15:34:18 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/print.c,v 1.2 2009/04/28 17:08:22 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig.new/RCS/print.c,v 1.3 2009/07/17 16:02:57 dmm Exp $
  *
  */
 
@@ -80,6 +80,88 @@ void print_udp_header(udph)
 
 
 /*
+ *	Print a map_reply packet. The output format matches Dino's
+ *	(to the extent possible).
+ *
+ *
+ */
+
+void print_map_reply(map_reply,requested_eid,mr_to,mr_from,elapsed_time,from)
+    struct map_reply_pkt *map_reply;
+    char *requested_eid;
+    char *mr_to;
+    char *mr_from;
+    long elapsed_time;
+    struct in_addr *from;
+{
+
+    struct lisp_map_reply_eidtype *eidtype;
+    struct lisp_map_reply_loctype *loctype;
+    struct in_addr		   *eid;
+    struct in_addr		   *locator;
+    char			   pw[8];
+    int				   offset = 0;
+    int				   record_count = 0;
+    int				   locator_count = 0;
+    int				   i;    
+    int				   j;
+
+    printf("Received map-reply from %s with rtt %2.5f sec\n",
+	   mr_from, (double) elapsed_time/1000);
+    printf("\nMapping entry for EID %s:\n", requested_eid);
+
+    record_count = map_reply->record_count;
+
+    /*
+     *	loop through the Records
+     */	
+
+    for (i = 0; i < record_count; i++) {
+	eidtype = (struct lisp_map_reply_eidtype *) &map_reply->data;
+        locator_count = eidtype->loc_count;
+	eid = (struct in_addr *) &eidtype->eid_prefix;
+	printf("%s/%d,", inet_ntoa(*eid),eidtype->eid_mask_len);
+	if (debug) 
+	    printf(" via map-reply, record ttl: %d, %s, nonce: 0x%x\n", 
+		   ntohl(eidtype->record_ttl), 
+		   eidtype->auth_bit ? "auth" : "not auth", 
+		   ntohl(map_reply->lisp_nonce));
+	else
+	    printf(" record ttl: %d\n", ntohl(eidtype->record_ttl)); 
+
+        loctype = (struct lisp_map_reply_loctype *)
+	    CO(eidtype->eid_prefix, sizeof(struct in_addr));
+	
+        printf("  %-18s%-10s%-10s\n","Locator","State","Priority/Weight");
+
+	/*
+         * loop through the Loc's (see lig.h)
+         */
+
+        for (j = 0; j < locator_count; j++) {
+	    locator = (struct in_addr *) &loctype->locator;
+
+            sprintf(pw, "%d/%d", loctype->priority, loctype->weight);
+            printf("  %-18s%-10s%-10s\n",
+		   inet_ntoa(*locator),
+		   loctype->reach_bit ? "up" : "down",
+	           pw);
+	    /*
+             * Find the next "Loc" in this Record
+	     *
+             *	obviously this needs fixed for IPv6 
+             */
+
+            offset = sizeof(struct lisp_map_reply_loctype) + sizeof(struct in_addr);
+	    loctype = (struct lisp_map_reply_loctype *) CO(loctype, offset);
+
+	}
+    }
+}
+
+
+
+/*
  *	Print a map_reqest packet
  *
  *
@@ -91,14 +173,14 @@ void print_map_request(map_request)
     printf("\nMap-Request Packet\n");
     printf("==========================\n");
 
-    printf("lisp_loc_reach_bits\t= %d\n", map_request->lisp_loc_reach_bits);
     printf("smr_bit\t\t\t= %d\n", map_request->smr_bit);
-    printf("lisp_nonce\t\t= 0x%x\n", ntohl(map_request->lisp_nonce)); 
-    printf("lisp_type\t\t= %d\n",map_request->lisp_type);
-    printf("auth_bit\t\t= 0x%x\n", map_request->auth_bit);
+    printf("rloc_probet\t\t= %d\n", map_request->rloc_probe);
     printf("map_data_present\t= %d\n",map_request->map_data_present);
-    printf("rsvd\t\t\t= %d\n",map_request->rsvd);
-    printf("reserved0\t\t= %d\n",map_request->reserved0);
+    printf("auth_bit\t\t= 0x%x\n", map_request->auth_bit);
+    printf("lisp_type\t\t= %d\n",map_request->lisp_type);
+    printf("lisp_nonce\t\t= 0x%x\n", ntohl(map_request->lisp_nonce)); 
+    printf("reserved\t\t\t= %d\n",map_request->reserved);
+    printf("reserved1\t\t= %d\n",map_request->reserved1);
     printf("record_count\t\t= %d\n",map_request->record_count);
     printf("source_eid_afi\t\t= %d\n",
 	   ntohs(map_request->source_eid_afi));

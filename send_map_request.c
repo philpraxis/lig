@@ -10,7 +10,7 @@
  *	dmm@1-4-5.net
  *	Tue Apr 14 14:48:13 2009
  *
- *	$Header: /home/dmm/lisp/lig.new/RCS/send_map_request.c,v 1.37 2009/07/17 19:32:49 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.38 2009/07/20 17:29:36 dmm Exp $
  *
  */
 
@@ -46,47 +46,30 @@
  *	dmm@1-4-5.net
  *	Thu Apr 16 14:46:51 2009
  *
- *	$Header: /home/dmm/lisp/lig.new/RCS/send_map_request.c,v 1.37 2009/07/17 19:32:49 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.38 2009/07/20 17:29:36 dmm Exp $
  *
  */
 
-int send_map_request(s,nonce,before,eid,map_resolver,src_ip_addr)
+int send_map_request(s,nonce,before,eid,map_resolver,my_addr)
      int		s;
      unsigned int	nonce;
      struct timeval     *before;
      char		*eid;
      char		*map_resolver;
-     char		*src_ip_addr;
+     struct in_addr	*my_addr; 
 {
+
     u_char			packet[MAX_IP_PACKET];	
     struct sockaddr_in		mr;
     struct lisphdr		*lisph;
     struct ip			*iph;
     struct udphdr		*udph;
     struct map_request_pkt	*map_request;
-    struct in_addr		my_addr; 
     int				ip_len = 0;
     int				packet_len = 0;
     int				nbytes = 0;
 
-    /*
-     *   get my IP address
-     *
-     *	Note that this fails if /etc/hosts has an entry like
-     *
-     *   127.0.0.1 <whatever your hostname is>
-     *
-     */
 
-    if (src_ip_addr) {
-	my_addr.s_addr = inet_addr(src_ip_addr); 
-	if (debug)
-	    fprintf(stderr, "Setting source IP address to %s\n", src_ip_addr);
-    } else {
-      get_my_ip_addr(&my_addr); 
-      if (debug)
-	fprintf(stderr, "Using source address: %s\n", inet_ntoa(my_addr));
-    }
 
     /*
      *	make sure packet is clean
@@ -150,7 +133,7 @@ int send_map_request(s,nonce,before,eid,map_resolver,src_ip_addr)
     iph->ip_ttl = 255;
     iph->ip_p   = IPPROTO_UDP;
     iph->ip_sum = 0;			/* compute checksum later */
-    iph->ip_src.s_addr = my_addr.s_addr;
+    iph->ip_src.s_addr = my_addr->s_addr;
     iph->ip_dst.s_addr = inet_addr(eid); /* string from command line */
 
     /*
@@ -213,7 +196,7 @@ int send_map_request(s,nonce,before,eid,map_resolver,src_ip_addr)
     map_request->source_eid_afi              = htons(LISP_AFI_IP);
     map_request->itr_afi                     = htons(LISP_AFI_IP);
     map_request->source_eid.s_addr           = inet_addr("0.0.0.0");
-    map_request->originating_itr_rloc.s_addr = my_addr.s_addr;
+    map_request->originating_itr_rloc.s_addr = my_addr->s_addr;
     map_request->reserved1                   = 0;
     map_request->eid_prefix.s_addr           = inet_addr(eid);
     map_request->eid_prefix_afi              = htons(LISP_AFI_IP);
@@ -280,6 +263,6 @@ int send_map_request(s,nonce,before,eid,map_resolver,src_ip_addr)
     }
 
     return(GOOD);
-}
+     }
 
 

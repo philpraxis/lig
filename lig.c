@@ -7,7 +7,7 @@
  *	dmm@1-4-5.net
  *	Thu Apr  9 09:44:57 2009
  *
- *	$Header: /home/dmm/lisp/lig.new/RCS/lig.c,v 1.42 2009/07/17 19:32:49 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.43 2009/07/20 17:29:36 dmm Exp $
  *
  */
 
@@ -43,6 +43,7 @@ int main(int argc, char *argv[])
     struct timeval	after;
     struct protoent	*proto;
     struct sockaddr_in	 from;
+    struct in_addr	my_addr; 
 
     /*
      * Remember the requested eid and map resolver properties here 
@@ -233,6 +234,20 @@ int main(int argc, char *argv[])
     udph      = (struct udphdr *) CO(iph, sizeof(struct ip)); 
     map_reply = (struct map_reply_pkt *) CO(udph, sizeof(struct udphdr));
 
+    /*
+     *	get my ip_address
+     */
+
+    if (src_ip_addr) {
+	my_addr.s_addr = inet_addr(src_ip_addr); 
+	if (debug)
+	    fprintf(stderr, "Setting source IP address to %s\n", src_ip_addr);
+    } else {
+	get_my_ip_addr(&my_addr); 
+	if (debug)
+	    fprintf(stderr, "Using source address:\t%s\n", inet_ntoa(my_addr));
+    }
+
     /* 
      *	Initialize the random number generator for the nonces
      */
@@ -252,10 +267,15 @@ int main(int argc, char *argv[])
     memset(packet, 0, MAX_IP_PACKET);
     memset((char *) &from, 0, sizeof(from));
 
+
     emr_inner_src_port   = random();
     from.sin_family      = AF_INET;
-    from.sin_port        = emr_inner_src_port;
+    from.sin_port        = htons(emr_inner_src_port);
     from.sin_addr.s_addr = INADDR_ANY;
+
+    if (debug)
+	fprintf(stderr, "Using source port:\t%d\n", emr_inner_src_port);
+
 
     /* this doesn't work, i.e., we still receive packets to other ports */
 
@@ -283,7 +303,7 @@ int main(int argc, char *argv[])
 		   mr_name,
 		   eid_name);
 
-	if (send_map_request(s, nonce[i], &before, eid, map_resolver, src_ip_addr)) {
+	if (send_map_request(s, nonce[i], &before, eid, map_resolver, &my_addr)) {
 	    perror("can't send map-request");
 	    exit(BAD);
 	}

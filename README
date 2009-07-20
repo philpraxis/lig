@@ -1,0 +1,76 @@
+#
+#
+#	README
+#
+#	David Meyer
+#	dmm@1-4-5.net
+#	Mon Jul 20 14:24:33 2009
+#
+#	$Header: /home/dmm/lisp/lig/RCS/README,v 1.1 2009/07/20 21:41:32 dmm Exp $
+#
+
+	- 07/20/2009
+ 
+          The main issue with lig right now is that it listens
+	  for the map-reply on a raw socket. This is because the
+	  sending socket is unrelated to the receive socket, so
+	  there is no kernel data structure available to "filter"
+	  the packet. Most notably:
+
+	  o The map-request is encapsulated with 
+
+	    destination port:	4341 (LISP_DATA_PORT)
+	    source port:	random
+
+	    In this case the source port is set up by the
+	    kernel. So we build a packet that looks like this:
+
+	     outer-ip-header		built by the kernel
+	     udp-header (4341)		built by the kernel
+	     outer lisp-header		struct lisphdr *lisph
+	     inner-ip-header		struct ip      *iphdr
+	     udp-header (4342)		struct udphdr  *udphdr
+	     lisp-header (map-request)	struct map_request_pkt *map_request
+
+	    For completeness, here is the packet we build:
+
+             IP header (kernel does this on socket s)
+             UDP header (SRC PORT = kernel-generated-random, DEST PORT = 4341)
+             lisph       -> LISP header
+             iph         -> IP header (SRC = this host, DEST = requested eid)
+             udph        -> UDP (SRC PORT = user-generated-random, DEST PORT = 4342)
+             map_request -> struct map-request
+             
+             
+             We'll open a UDP socket on dest port 4341, and 
+             give it a "packet" that that looks like:
+             
+             lisph       -> outer LISP header
+             iph         -> IP header (SRC = this host,  DEST = eid)
+             udph        -> UDP (SRC PORT = user-generated-random,DEST PORT = 4342)
+             map_request -> struct map-request
+
+
+	  o Now, when a map resolver receives this packet, it
+	    strips off the outer IP  UDP, inspects the LISP
+	    header, and forwards the IP packet on the ALT. 
+
+	  o PROBLEM 
+
+	    The Map Reply comes back with UDP src port = 4342,
+	    and the UDP dest port = user-generated-random.  There
+	    is no kernel data structure that knows this. In summary:
+
+	    - We send a UDP header with 
+
+               SRC PORT = kernel-generated-random, DEST PORT = 4341
+ 
+              We receive a UDP packet that has 
+	    
+               SRC PORT = 4342, DEST port = user-generated-random 
+
+	      These as these are unrelated, we there is no kernel
+	      data structure available (i.e., we can't receive on
+	      the same socket we sent on, etc).
+
+	

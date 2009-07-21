@@ -7,7 +7,7 @@
  *	dmm@1-4-5.net
  *	Thu Apr  9 09:44:57 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.43 2009/07/20 17:29:36 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.44 2009/07/21 15:21:59 dmm Exp $
  *
  */
 
@@ -276,14 +276,6 @@ int main(int argc, char *argv[])
     if (debug)
 	fprintf(stderr, "Using source port:\t%d\n", emr_inner_src_port);
 
-
-    /* this doesn't work, i.e., we still receive packets to other ports */
-
-    if (bind(r,(struct sockaddr *) &from, sizeof(struct sockaddr_in)) == -1) {
-	perror("bind");
-	exit(BAD);
-    }
-
     /*
      *	loop until either we get a map-reply or we 
      *	try count times
@@ -314,7 +306,7 @@ int main(int argc, char *argv[])
 		return(BAD);
 	    }
 
-	    if (!get_map_reply(r, packet))		/* get a packet */
+	    if (!get_map_reply(r, packet, &from))		/* get a packet */
 		continue;				/* not a LISP control packet */
 
 	    /*

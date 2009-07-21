@@ -5,7 +5,7 @@
  *	dmm@1-4-5.net
  *	Thu Apr 23 15:34:18 2009
  *
- *	$Header: /home/dmm/lisp/lig.new/RCS/print.c,v 1.3 2009/07/17 16:02:57 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/print.c,v 1.4 2009/07/21 15:21:59 dmm Exp $
  *
  */
 
@@ -132,30 +132,52 @@ void print_map_reply(map_reply,requested_eid,mr_to,mr_from,elapsed_time,from)
         loctype = (struct lisp_map_reply_loctype *)
 	    CO(eidtype->eid_prefix, sizeof(struct in_addr));
 	
-        printf("  %-18s%-10s%-10s\n","Locator","State","Priority/Weight");
+	if (locator_count) {
+	    printf("  %-18s%-10s%-10s\n","Locator","State","Priority/Weight");
 
-	/*
-         * loop through the Loc's (see lig.h)
-         */
-
-        for (j = 0; j < locator_count; j++) {
-	    locator = (struct in_addr *) &loctype->locator;
-
-            sprintf(pw, "%d/%d", loctype->priority, loctype->weight);
-            printf("  %-18s%-10s%-10s\n",
-		   inet_ntoa(*locator),
-		   loctype->reach_bit ? "up" : "down",
-	           pw);
 	    /*
-             * Find the next "Loc" in this Record
-	     *
-             *	obviously this needs fixed for IPv6 
-             */
+	     * loop through the Loc's (see lig.h)
+	     */
 
-            offset = sizeof(struct lisp_map_reply_loctype) + sizeof(struct in_addr);
-	    loctype = (struct lisp_map_reply_loctype *) CO(loctype, offset);
+	    for (j = 0; j < locator_count; j++) {
+		locator = (struct in_addr *) &loctype->locator;
 
+		sprintf(pw, "%d/%d", loctype->priority, loctype->weight);
+		printf("  %-18s%-10s%-10s\n",
+		       inet_ntoa(*locator),
+		       loctype->reach_bit ? "up" : "down",
+		       pw);
+		/*
+		 * Find the next "Loc" in this Record
+		 *
+		 *	obviously this needs fixed for IPv6 
+		 */
+
+		offset = sizeof(struct lisp_map_reply_loctype) + sizeof(struct in_addr);
+		loctype = (struct lisp_map_reply_loctype *) CO(loctype, offset);
+
+	    }
+	} else {
+	    printf("  Negative cache entry, action: ");
+	    switch (eidtype->action) {
+	    case 0:
+		printf("no-action\n");
+		break;
+	    case 1:
+		printf("forward-native\n");
+		break;
+	    case 2:
+		printf("drop\n");
+		break;
+	    case 3:
+		printf("send-map-request\n");
+		break;
+	    default:
+		printf("unknown-action\n");
+		break;
+	    }		
 	}
+
     }
 }
 

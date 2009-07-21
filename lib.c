@@ -8,7 +8,7 @@
  *	dmm@1-4-5.net
  *	Thu Apr 23 15:37:01 2009
  *
- *	$Header: /home/dmm/lisp/lig.new/RCS/lib.c,v 1.24 2009/07/17 19:32:49 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lib.c,v 1.25 2009/07/21 15:21:59 dmm Exp $
  *
  */
 
@@ -78,18 +78,26 @@ wait_for_response(s,timeout)
  *
  */
 
-unsigned int get_map_reply(r,packet)
+unsigned int get_map_reply(r,packet, from)
      int    r;
      u_char  *packet;
+    struct sockaddr_in	 *from;
+
 {
 
     struct ip            *iph;
     struct udphdr        *udph;
     struct lisphdr       *lisph;
     struct map_reply_pkt *map_reply;
+    int    fromlen =     sizeof(struct sockaddr_in);
 
-    if (recv(r, packet, MAX_IP_PACKET, 0) == -1) {
-	perror("recv");
+    if (recvfrom(r,
+		 packet,
+		 MAX_IP_PACKET,
+		 0,
+		 (struct sockaddr *) from,
+		 &fromlen) < 0) {
+	perror("recvfrom");
 	exit(BAD);
     }
  

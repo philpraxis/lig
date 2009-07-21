@@ -7,7 +7,7 @@
  *	dmm@1-4-5.net
  *	Thu Apr  9 09:44:57 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.45 2009/07/21 16:40:12 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.45 2009/07/21 16:40:12 dmm Exp dmm $
  *
  */
 
@@ -240,7 +240,7 @@ int main(int argc, char *argv[])
     if (src_ip_addr) {
 	my_addr.s_addr = inet_addr(src_ip_addr); 
 	if (debug)
-	    fprintf(stderr, "Setting source IP address to %s\n", src_ip_addr);
+	    fprintf(stderr, "Using source address:\t%s\n", src_ip_addr);
     } else {
 	get_my_ip_addr(&my_addr); 
 	if (debug)

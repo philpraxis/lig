@@ -5,7 +5,7 @@
  *	dmm@1-4-5.net
  *	Thu Apr 23 15:34:18 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/print.c,v 1.4 2009/07/21 15:21:59 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/print.c,v 1.5 2009/07/21 16:50:32 dmm Exp $
  *
  */
 
@@ -106,7 +106,7 @@ void print_map_reply(map_reply,requested_eid,mr_to,mr_from,elapsed_time,from)
     int				   i;    
     int				   j;
 
-    printf("Received map-reply from %s with rtt %2.5f sec\n",
+    printf("Received map-reply from %s with rtt %2.5f secs\n",
 	   mr_from, (double) elapsed_time/1000);
     printf("\nMapping entry for EID %s:\n", requested_eid);
 

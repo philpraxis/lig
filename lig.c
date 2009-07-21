@@ -7,7 +7,7 @@
  *	dmm@1-4-5.net
  *	Thu Apr  9 09:44:57 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.45 2009/07/21 16:40:12 dmm Exp dmm $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.47 2009/07/21 17:49:43 dmm Exp $
  *
  */
 
@@ -277,6 +277,14 @@ int main(int argc, char *argv[])
     from.sin_family      = AF_INET;
     from.sin_port        = htons(emr_inner_src_port);
     from.sin_addr.s_addr = INADDR_ANY;
+
+    /* this doesn't work, i.e., we still receive packets to other ports */
+
+    if (bind(r,(struct sockaddr *) &from, sizeof(struct sockaddr_in)) == -1) {
+	perror("bind");
+	exit(BAD);
+    }
+
 
     if (debug)
 	fprintf(stderr, "Using source port:\t%d\n", emr_inner_src_port);

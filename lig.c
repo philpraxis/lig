@@ -7,7 +7,7 @@
  *	dmm@1-4-5.net
  *	Thu Apr  9 09:44:57 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.44 2009/07/21 15:21:59 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.45 2009/07/21 16:40:12 dmm Exp $
  *
  */
 
@@ -179,7 +179,6 @@ int main(int argc, char *argv[])
     mr_length   = hostent->h_length;
     map_resolver  = strdup(inet_ntoa(*((struct in_addr *)hostent->h_addr)));
 
-
     /*
      *	get an array of nonces of size count
      */
@@ -268,7 +267,13 @@ int main(int argc, char *argv[])
     memset((char *) &from, 0, sizeof(from));
 
 
-    emr_inner_src_port   = random();
+    /*
+     * http://tools.ietf.org/html/draft-larsen-tsvwg-port-randomization-02.txt
+     */
+
+    emr_inner_src_port   = MIN_EPHEMERAL_PORT +
+	random() % (MAX_EPHEMERAL_PORT - MIN_EPHEMERAL_PORT);
+
     from.sin_family      = AF_INET;
     from.sin_port        = htons(emr_inner_src_port);
     from.sin_addr.s_addr = INADDR_ANY;

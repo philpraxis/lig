@@ -8,7 +8,7 @@
  *	dmm@1-4-5.net
  *	Thu Apr 16 14:50:33 2009
  *
- *	$Header: /home/dmm/lisp/lig.new/RCS/lig.h,v 1.37 2009/07/17 19:32:49 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig.h,v 1.38 2009/07/21 16:40:12 dmm Exp $
  *
  */
 
@@ -45,6 +45,8 @@ typedef enum			{FALSE,TRUE} boolean;
 #define	MAX_MR_TIMEOUT		5	/* seconds */
 #define	NINTERFACES		10
 #define	LOOPBACK		"127.0.0.1"
+#define	MIN_EPHEMERAL_PORT	32768
+#define	MAX_EPHEMERAL_PORT	61000
 
 #define	USAGE	"usage: %s [-d] <eid> -m <map resolver> \
 [-c <count>] [-t <timeout>]\n"

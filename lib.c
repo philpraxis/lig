@@ -8,7 +8,7 @@
  *	dmm@1-4-5.net
  *	Thu Apr 23 15:37:01 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lib.c,v 1.25 2009/07/21 15:21:59 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lib.c,v 1.27 2009/07/21 21:29:22 dmm Exp $
  *
  */
 
@@ -109,13 +109,22 @@ unsigned int get_map_reply(r,packet, from)
     udph      = (struct udphdr *)        CO(iph, sizeof(struct ip)); 
     map_reply = (struct map_reply_pkt *) CO(udph, sizeof(struct udphdr));
 
+    if (debug > 2)
+	printf("Received packet: <%s,%d,%s,%d> (%d)\n",
+	       inet_ntoa(iph->ip_src),
+	       ntohs(udph->source),
+	       inet_ntoa(iph->ip_dst),
+	       ntohs(udph->dest),
+	       emr_inner_src_port);
+
     if (ntohs(udph->source) != LISP_CONTROL_PORT) {
 	if (debug)
-	    printf("Packet is not a Map-Reply: IP (%s,%s) UDP (%d,%d))\n",
+	    printf("Packet is not a Map-Reply: <%s,%d,%s,%d> (%d)\n",
 		   inet_ntoa(iph->ip_src),
-		   inet_ntoa(iph->ip_dst),
 		   ntohs(udph->source),
-		   ntohs(udph->dest));
+		   inet_ntoa(iph->ip_dst),
+		   ntohs(udph->dest),
+		   emr_inner_src_port);
 	return(0);			/* not a map-reply */
     } else {
 	return(1);			/* is a map-reply */

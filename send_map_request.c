@@ -10,7 +10,7 @@
  *	dmm@1-4-5.net
  *	Tue Apr 14 14:48:13 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.38 2009/07/20 17:29:36 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.40 2009/07/21 21:58:43 dmm Exp $
  *
  */
 
@@ -46,7 +46,7 @@
  *	dmm@1-4-5.net
  *	Thu Apr 16 14:46:51 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.38 2009/07/20 17:29:36 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.40 2009/07/21 21:58:43 dmm Exp $
  *
  */
 
@@ -148,7 +148,7 @@ int send_map_request(s,nonce,before,eid,map_resolver,my_addr)
     udph->uh_ulen  = htons(sizeof(struct udphdr) + sizeof(struct map_request_pkt));
     udph->uh_sum   = 0;
 #else
-    udph->source = htonl(emr_inner_src_port);
+    udph->source = htons(emr_inner_src_port);
     udph->dest   = htons(LISP_CONTROL_PORT);
     udph->len    = htons(sizeof(struct udphdr) + sizeof(struct map_request_pkt));
     udph->check  = 0;
@@ -196,7 +196,7 @@ int send_map_request(s,nonce,before,eid,map_resolver,my_addr)
     map_request->source_eid_afi              = htons(LISP_AFI_IP);
     map_request->itr_afi                     = htons(LISP_AFI_IP);
     map_request->source_eid.s_addr           = inet_addr("0.0.0.0");
-    map_request->originating_itr_rloc.s_addr = my_addr->s_addr;
+    map_request->originating_itr_rloc.s_addr = my_addr->s_addr; 
     map_request->reserved1                   = 0;
     map_request->eid_prefix.s_addr           = inet_addr(eid);
     map_request->eid_prefix_afi              = htons(LISP_AFI_IP);

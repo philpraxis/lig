@@ -5,7 +5,7 @@
  *	dmm@1-4-5.net
  *	Thu Apr 23 15:34:18 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/print.c,v 1.5 2009/07/21 16:50:32 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/print.c,v 1.6 2009/07/27 09:28:19 dmm Exp $
  *
  */
 
@@ -173,7 +173,7 @@ void print_map_reply(map_reply,requested_eid,mr_to,mr_from,elapsed_time,from)
 		printf("send-map-request\n");
 		break;
 	    default:
-		printf("unknown-action\n");
+		printf("unknown-action (%d)\n", eidtype->action);
 		break;
 	    }		
 	}

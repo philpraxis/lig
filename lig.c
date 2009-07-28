@@ -7,7 +7,7 @@
  *	dmm@1-4-5.net
  *	Thu Apr  9 09:44:57 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.47 2009/07/21 17:49:43 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.50 2009/07/28 14:48:47 dmm Exp $
  *
  */
 
@@ -163,7 +163,7 @@ int main(int argc, char *argv[])
 
     eid_addrtype = hostent->h_addrtype;
     eid_length   = hostent->h_length;
-    eid = strdup(inet_ntoa(*((struct in_addr *)hostent->h_addr)));
+    eid          = strdup(inet_ntoa(*((struct in_addr *)hostent->h_addr)));
 
     if ((hostent = gethostbyname(map_resolver)) == NULL) {
 	fprintf(stderr, "gethostbyname for %s failed (%s)\n",
@@ -175,9 +175,9 @@ int main(int argc, char *argv[])
      *  likewise for the map resolver
      */
 
-    mr_addrtype = hostent->h_addrtype;
-    mr_length   = hostent->h_length;
-    map_resolver  = strdup(inet_ntoa(*((struct in_addr *)hostent->h_addr)));
+    mr_addrtype  = hostent->h_addrtype;
+    mr_length    = hostent->h_length;
+    map_resolver = strdup(inet_ntoa(*((struct in_addr *)hostent->h_addr)));
 
     /*
      *	get an array of nonces of size count
@@ -237,15 +237,14 @@ int main(int argc, char *argv[])
      *	get my ip_address
      */
 
-    if (src_ip_addr) {
+    if (src_ip_addr) 
 	my_addr.s_addr = inet_addr(src_ip_addr); 
-	if (debug)
-	    fprintf(stderr, "Using source address:\t%s\n", src_ip_addr);
-    } else {
+    else 
 	get_my_ip_addr(&my_addr); 
-	if (debug)
-	    fprintf(stderr, "Using source address:\t%s\n", inet_ntoa(my_addr));
-    }
+    
+
+    if (debug)
+	fprintf(stderr, "Using source address:\t%s\n", inet_ntoa(my_addr));
 
     /* 
      *	Initialize the random number generator for the nonces
@@ -266,7 +265,6 @@ int main(int argc, char *argv[])
     memset(packet, 0, MAX_IP_PACKET);
     memset((char *) &from, 0, sizeof(from));
 
-
     /*
      * http://tools.ietf.org/html/draft-larsen-tsvwg-port-randomization-02.txt
      */
@@ -275,7 +273,7 @@ int main(int argc, char *argv[])
 	random() % (MAX_EPHEMERAL_PORT - MIN_EPHEMERAL_PORT);
 
     from.sin_family      = AF_INET;
-    from.sin_port        = htons(emr_inner_src_port);
+    from.sin_port        = htons(emr_inner_src_port); 
     from.sin_addr.s_addr = INADDR_ANY;
 
     /* this doesn't work, i.e., we still receive packets to other ports */
@@ -284,7 +282,6 @@ int main(int argc, char *argv[])
 	perror("bind");
 	exit(BAD);
     }
-
 
     if (debug)
 	fprintf(stderr, "Using source port:\t%d\n", emr_inner_src_port);

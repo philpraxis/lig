@@ -7,7 +7,7 @@
  *	dmm@1-4-5.net
  *	Thu Apr  9 09:44:57 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.50 2009/07/28 14:48:47 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.51 2009/08/04 20:26:43 dmm Exp $
  *
  */
 
@@ -42,6 +42,7 @@ int main(int argc, char *argv[])
     struct timeval	before;
     struct timeval	after;
     struct protoent	*proto;
+    struct sockaddr_in	 me;
     struct sockaddr_in	 from;
     struct in_addr	my_addr; 
 
@@ -263,6 +264,7 @@ int main(int argc, char *argv[])
      */
 
     memset(packet, 0, MAX_IP_PACKET);
+    memset((char *) &me, 0, sizeof(me));
     memset((char *) &from, 0, sizeof(from));
 
     /*
@@ -272,13 +274,13 @@ int main(int argc, char *argv[])
     emr_inner_src_port   = MIN_EPHEMERAL_PORT +
 	random() % (MAX_EPHEMERAL_PORT - MIN_EPHEMERAL_PORT);
 
-    from.sin_family      = AF_INET;
-    from.sin_port        = htons(emr_inner_src_port); 
-    from.sin_addr.s_addr = INADDR_ANY;
+    me.sin_family      = AF_INET;
+    me.sin_port        = htons(emr_inner_src_port); 
+    me.sin_addr.s_addr = INADDR_ANY;
 
     /* this doesn't work, i.e., we still receive packets to other ports */
 
-    if (bind(r,(struct sockaddr *) &from, sizeof(struct sockaddr_in)) == -1) {
+    if (bind(r,(struct sockaddr *) &me, sizeof(struct sockaddr_in)) == -1) {
 	perror("bind");
 	exit(BAD);
     }

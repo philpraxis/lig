@@ -5,7 +5,7 @@
  *	dmm@1-4-5.net
  *	Thu Apr 23 15:34:18 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/print.c,v 1.6 2009/07/27 09:28:19 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/print.c,v 1.7 2009/08/05 20:23:24 dmm Exp $
  *
  */
 
@@ -99,7 +99,9 @@ void print_map_reply(map_reply,requested_eid,mr_to,mr_from,elapsed_time,from)
     struct lisp_map_reply_loctype *loctype;
     struct in_addr		   *eid;
     struct in_addr		   *locator;
+    struct in6_addr		   *locator6;
     char			   pw[8];
+    char			   buf[256];
     int				   offset = 0;
     int				   record_count = 0;
     int				   locator_count = 0;
@@ -133,29 +135,38 @@ void print_map_reply(map_reply,requested_eid,mr_to,mr_from,elapsed_time,from)
 	    CO(eidtype->eid_prefix, sizeof(struct in_addr));
 	
 	if (locator_count) {
-	    printf("  %-18s%-10s%-10s\n","Locator","State","Priority/Weight");
+	    printf("  %-20s%-10s%-10s\n","Locator","State","Priority/Weight");
 
 	    /*
 	     * loop through the Loc's (see lig.h)
+             *
+             *	all of this needs fixed for IPv6
 	     */
 
 	    for (j = 0; j < locator_count; j++) {
-		locator = (struct in_addr *) &loctype->locator;
+		switch (ntohs(loctype->loc_afi)) {
+		case LISP_AFI_IP:
+		    locator = (struct in_addr *) &loctype->locator;
 
-		sprintf(pw, "%d/%d", loctype->priority, loctype->weight);
-		printf("  %-18s%-10s%-10s\n",
-		       inet_ntoa(*locator),
-		       loctype->reach_bit ? "up" : "down",
-		       pw);
-		/*
-		 * Find the next "Loc" in this Record
-		 *
-		 *	obviously this needs fixed for IPv6 
-		 */
-
-		offset = sizeof(struct lisp_map_reply_loctype) + sizeof(struct in_addr);
+		    sprintf(pw, "%d/%d", loctype->priority, loctype->weight);
+		    printf("  %-20s%-10s%-10s\n",
+			   inet_ntoa(*locator),
+			   loctype->reach_bit ? "up" : "down",
+			   pw);
+		    offset = sizeof(struct lisp_map_reply_loctype) + sizeof(struct in_addr);
+		    break;
+		case LISP_AFI_IPV6:
+		    sprintf(pw, "%d/%d", loctype->priority, loctype->weight);
+	            printf("  %-20s%-10s%-10s\n",
+			   "IPv6 not supported",
+			   loctype->reach_bit ? "up" : "down", pw);
+		    offset = sizeof(struct lisp_map_reply_loctype) + sizeof(struct in6_addr);
+		    break;
+		default:
+		    fprintf(stderr, "Unknown Locator AFI (%d)\n",ntohs(loctype->loc_afi));
+		    break;
+		}
 		loctype = (struct lisp_map_reply_loctype *) CO(loctype, offset);
-
 	    }
 	} else {
 	    printf("  Negative cache entry, action: ");

@@ -8,7 +8,7 @@
  *	dmm@1-4-5.net
  *	Thu Apr 16 14:50:33 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig.h,v 1.38 2009/07/21 16:40:12 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig.h,v 1.40 2009/08/07 16:25:05 dmm Exp $
  *
  */
 
@@ -227,6 +227,18 @@ struct lisp_map_reply_loctype {
     ushort loc_afi;
     u_char  locator[0];
 } __attribute__ ((__packed__));
+
+/*
+ *	a RLOC can be v4 or v6 (so far)
+ */
+
+struct lisp_addrtype {
+    u_char addr_type;
+    union {
+        struct in_addr	ip;
+        struct in6_addr ipv6;
+    } address;
+};
 
 
 /*

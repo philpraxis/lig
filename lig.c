@@ -7,7 +7,7 @@
  *	dmm@1-4-5.net
  *	Thu Apr  9 09:44:57 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.51 2009/08/04 20:26:43 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.53 2009/08/07 16:25:05 dmm Exp $
  *
  */
 
@@ -263,8 +263,8 @@ int main(int argc, char *argv[])
      *
      */
 
-    memset(packet, 0, MAX_IP_PACKET);
-    memset((char *) &me, 0, sizeof(me));
+    memset(packet,         0, MAX_IP_PACKET);
+    memset((char *) &me,   0, sizeof(me));
     memset((char *) &from, 0, sizeof(from));
 
     /*
@@ -280,7 +280,7 @@ int main(int argc, char *argv[])
 
     /* this doesn't work, i.e., we still receive packets to other ports */
 
-    if (bind(r,(struct sockaddr *) &me, sizeof(struct sockaddr_in)) == -1) {
+    if (bind(r,(struct sockaddr *) &me, sizeof(me)) == -1) {
 	perror("bind");
 	exit(BAD);
     }
@@ -303,9 +303,7 @@ int main(int argc, char *argv[])
 		   eid_name,
 		   eid);
 	else 
-	    printf("Send map-request to %s for %s ...\n",
-		   mr_name,
-		   eid_name);
+	    printf("Send map-request to %s for %s ...\n", mr_name, eid_name);
 
 	if (send_map_request(s, nonce[i], &before, eid, map_resolver, &my_addr)) {
 	    perror("can't send map-request");
@@ -318,7 +316,7 @@ int main(int argc, char *argv[])
 		return(BAD);
 	    }
 
-	    if (!get_map_reply(r, packet, &from))		/* get a packet */
+	    if (!get_map_reply(r, packet, &from))	/* get a packet */
 		continue;				/* not a LISP control packet */
 
 	    /*
@@ -336,9 +334,9 @@ int main(int argc, char *argv[])
 				strdup(inet_ntoa(iph->ip_src)),
 				tvdiff(&after,&before));
 		exit(GOOD);
-		no_reply = FALSE;
-	    } else {	                       /* Otherwise assume its spoofed */
+	    } else {	                    /* Otherwise assume its spoofed */
 		printf("Apparently spoofed map-reply (0x%x)\n", nonce[i]);
+                no_reply = FALSE;
 		if (debug)
 		    print_map_reply(map_reply,
 				    eid,

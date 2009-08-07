@@ -1,11 +1,16 @@
 /*
  *	Various diagnostic print routines
  *
+ *	08072009:
+ *		make print_map_reply handle IPv6 RLOCs
+ *
+ *
  *	David Meyer
  *	dmm@1-4-5.net
  *	Thu Apr 23 15:34:18 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/print.c,v 1.7 2009/08/05 20:23:24 dmm Exp $
+ *
+ *	$Header: /home/dmm/lisp/lig/RCS/print.c,v 1.9 2009/08/07 16:25:05 dmm Exp $
  *
  */
 
@@ -50,7 +55,6 @@ void print_ip_header(iph)
     printf("iph->sum\t= 0x%x\n",  iph->ip_sum);
     printf("iph->ip_src\t= %s\n", inet_ntoa(iph->ip_src));
     printf("iph->ip_dst\t= %s\n", inet_ntoa(iph->ip_dst));
-
 }
 
 /*
@@ -98,13 +102,14 @@ void print_map_reply(map_reply,requested_eid,mr_to,mr_from,elapsed_time,from)
     struct lisp_map_reply_eidtype *eidtype;
     struct lisp_map_reply_loctype *loctype;
     struct in_addr		   *eid;
-    struct in_addr		   *locator;
-    struct in6_addr		   *locator6;
     char			   pw[8];
     char			   buf[256];
-    int				   offset = 0;
-    int				   record_count = 0;
-    int				   locator_count = 0;
+    const char			   *formatted_addr = NULL;
+    int				   record_count    = 0;
+    int				   locator_count   = 0;
+    int				   offset          = 0;
+    int				   addr_offset     = 0;
+    int				   afi             = 0;
     int				   i;    
     int				   j;
 
@@ -119,56 +124,60 @@ void print_map_reply(map_reply,requested_eid,mr_to,mr_from,elapsed_time,from)
      */	
 
     for (i = 0; i < record_count; i++) {
-	eidtype = (struct lisp_map_reply_eidtype *) &map_reply->data;
+	eidtype       = (struct lisp_map_reply_eidtype *) &map_reply->data;
         locator_count = eidtype->loc_count;
-	eid = (struct in_addr *) &eidtype->eid_prefix;
-	printf("%s/%d,", inet_ntoa(*eid),eidtype->eid_mask_len);
-	if (debug) 
-	    printf(" via map-reply, record ttl: %d, %s, nonce: 0x%x\n", 
-		   ntohl(eidtype->record_ttl), 
-		   eidtype->auth_bit ? "auth" : "not auth", 
-		   ntohl(map_reply->lisp_nonce));
-	else
-	    printf(" record ttl: %d\n", ntohl(eidtype->record_ttl)); 
+	eid           = (struct in_addr *) &eidtype->eid_prefix;
+        loctype       = (struct lisp_map_reply_loctype *)
+	                 CO(eidtype->eid_prefix, sizeof(struct in_addr));
 
-        loctype = (struct lisp_map_reply_loctype *)
-	    CO(eidtype->eid_prefix, sizeof(struct in_addr));
-	
+	printf("%s/%d,", inet_ntoa(*eid),eidtype->eid_mask_len);
+	printf(" via map-reply, record ttl: %d, %s, nonce: 0x%x\n", 
+	       ntohl(eidtype->record_ttl), 
+	       eidtype->auth_bit ? "auth" : "not auth", 
+	       ntohl(map_reply->lisp_nonce));
+
 	if (locator_count) {
-	    printf("  %-20s%-10s%-10s\n","Locator","State","Priority/Weight");
+	    printf("  %-32s%-10s%-10s\n","Locator","State","Priority/Weight");
 
 	    /*
-	     * loop through the Loc's (see lig.h)
+	     * loop through the locators in the record
              *
-             *	all of this needs fixed for IPv6
 	     */
 
 	    for (j = 0; j < locator_count; j++) {
 		switch (ntohs(loctype->loc_afi)) {
 		case LISP_AFI_IP:
-		    locator = (struct in_addr *) &loctype->locator;
-
-		    sprintf(pw, "%d/%d", loctype->priority, loctype->weight);
-		    printf("  %-20s%-10s%-10s\n",
-			   inet_ntoa(*locator),
-			   loctype->reach_bit ? "up" : "down",
-			   pw);
-		    offset = sizeof(struct lisp_map_reply_loctype) + sizeof(struct in_addr);
+		    afi = AF_INET;
+		    addr_offset = sizeof(struct in_addr);
 		    break;
 		case LISP_AFI_IPV6:
-		    sprintf(pw, "%d/%d", loctype->priority, loctype->weight);
-	            printf("  %-20s%-10s%-10s\n",
-			   "IPv6 not supported",
-			   loctype->reach_bit ? "up" : "down", pw);
-		    offset = sizeof(struct lisp_map_reply_loctype) + sizeof(struct in6_addr);
+		    afi = AF_INET6;
+		    addr_offset = sizeof(struct in6_addr);
 		    break;
 		default:
-		    fprintf(stderr, "Unknown Locator AFI (%d)\n",ntohs(loctype->loc_afi));
+		    fprintf(stderr, "Unknown AFI (0x%x)\n",
+			    ntohs(loctype->loc_afi));
 		    break;
 		}
+
+		if ((formatted_addr = inet_ntop(afi,
+						&loctype->locator,
+						buf,
+						sizeof(buf))) == NULL) {
+		    perror("inet_ntop");
+		    exit(BAD);
+		}
+
+		sprintf(pw, "%d/%d", loctype->priority, loctype->weight);
+		printf("  %-32s%-10s%-10s\n",
+		       formatted_addr,
+		       loctype->reach_bit ? "up" : "down",
+		       pw);
+
+		offset  = sizeof(struct lisp_map_reply_loctype) + addr_offset;
 		loctype = (struct lisp_map_reply_loctype *) CO(loctype, offset);
 	    }
-	} else {
+	} else {		/* zero locators means negative map reply */
 	    printf("  Negative cache entry, action: ");
 	    switch (eidtype->action) {
 	    case 0:

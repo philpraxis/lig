@@ -8,7 +8,7 @@
  *	dmm@1-4-5.net
  *	Thu Apr 16 14:50:33 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig.h,v 1.40 2009/08/07 16:25:05 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig.h,v 1.41 2009/08/08 02:27:48 dmm Exp $
  *
  */
 
@@ -233,7 +233,6 @@ struct lisp_map_reply_loctype {
  */
 
 struct lisp_addrtype {
-    u_char addr_type;
     union {
         struct in_addr	ip;
         struct in6_addr ipv6;

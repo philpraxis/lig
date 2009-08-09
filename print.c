@@ -10,7 +10,7 @@
  *	Thu Apr 23 15:34:18 2009
  *
  *
- *	$Header: /home/dmm/lisp/lig/RCS/print.c,v 1.9 2009/08/07 16:25:05 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/print.c,v 1.10 2009/08/09 19:56:09 dmm Exp $
  *
  */
 
@@ -82,6 +82,66 @@ void print_udp_header(udph)
 }
 
 
+/*
+ *	print_negative_cache_entry
+ *
+ *	Prettily print a negative cache entry
+ *
+ */
+void print_negative_cache_entry(action)
+     int	action;
+{
+    printf("  Negative cache entry, action: ");
+    switch (action) {
+    case 0:
+	printf("no-action\n");
+	break;
+    case 1:
+	printf("forward-native\n");
+	break;
+    case 2:
+	printf("drop\n");
+	break;
+    case 3:
+	printf("send-map-request\n");
+	break;
+    default:
+	printf("unknown-action (%d)\n", action);
+	break;
+    }		
+}
+
+
+/*
+ *	set_afi_and_addr_offset
+ *
+ *	Set up the afi for inet_ntop and set
+ *	the addr_offset to calculate location of 
+ *	the next locator.
+ *
+ */
+
+void set_afi_and_addr_offset(loc_afi,afi,addr_offset)
+     ushort	loc_afi;
+     int	*afi;
+     int	*addr_offset;
+{
+    switch (ntohs(loc_afi)) {
+    case LISP_AFI_IP:
+	*afi = AF_INET;
+	*addr_offset = sizeof(struct in_addr);
+	break;
+    case LISP_AFI_IPV6:
+	*afi = AF_INET6;
+	*addr_offset = sizeof(struct in6_addr);
+	break;
+    default:
+	fprintf(stderr, "Unknown AFI (0x%x)\n",
+		ntohs(loc_afi));
+	break;
+    }
+}
+
 
 /*
  *	Print a map_reply packet. The output format matches Dino's
@@ -110,25 +170,26 @@ void print_map_reply(map_reply,requested_eid,mr_to,mr_from,elapsed_time,from)
     int				   offset          = 0;
     int				   addr_offset     = 0;
     int				   afi             = 0;
-    int				   i;    
-    int				   j;
+    int				   i               = 0;    
+    int				   j               = 0;
 
     printf("Received map-reply from %s with rtt %2.5f secs\n",
 	   mr_from, (double) elapsed_time/1000);
     printf("\nMapping entry for EID %s:\n", requested_eid);
 
-    record_count = map_reply->record_count;
 
     /*
      *	loop through the Records
      */	
+
+    record_count = map_reply->record_count;
 
     for (i = 0; i < record_count; i++) {
 	eidtype       = (struct lisp_map_reply_eidtype *) &map_reply->data;
         locator_count = eidtype->loc_count;
 	eid           = (struct in_addr *) &eidtype->eid_prefix;
         loctype       = (struct lisp_map_reply_loctype *)
-	                 CO(eidtype->eid_prefix, sizeof(struct in_addr));
+	    CO(eidtype->eid_prefix, sizeof(struct in_addr));
 
 	printf("%s/%d,", inet_ntoa(*eid),eidtype->eid_mask_len);
 	printf(" via map-reply, record ttl: %d, %s, nonce: 0x%x\n", 
@@ -136,7 +197,7 @@ void print_map_reply(map_reply,requested_eid,mr_to,mr_from,elapsed_time,from)
 	       eidtype->auth_bit ? "auth" : "not auth", 
 	       ntohl(map_reply->lisp_nonce));
 
-	if (locator_count) {
+	if (locator_count) {		/* have some locators */
 	    printf("  %-32s%-10s%-10s\n","Locator","State","Priority/Weight");
 
 	    /*
@@ -145,21 +206,7 @@ void print_map_reply(map_reply,requested_eid,mr_to,mr_from,elapsed_time,from)
 	     */
 
 	    for (j = 0; j < locator_count; j++) {
-		switch (ntohs(loctype->loc_afi)) {
-		case LISP_AFI_IP:
-		    afi = AF_INET;
-		    addr_offset = sizeof(struct in_addr);
-		    break;
-		case LISP_AFI_IPV6:
-		    afi = AF_INET6;
-		    addr_offset = sizeof(struct in6_addr);
-		    break;
-		default:
-		    fprintf(stderr, "Unknown AFI (0x%x)\n",
-			    ntohs(loctype->loc_afi));
-		    break;
-		}
-
+                set_afi_and_addr_offset(loctype->loc_afi,&afi,&addr_offset);
 		if ((formatted_addr = inet_ntop(afi,
 						&loctype->locator,
 						buf,
@@ -177,30 +224,10 @@ void print_map_reply(map_reply,requested_eid,mr_to,mr_from,elapsed_time,from)
 		offset  = sizeof(struct lisp_map_reply_loctype) + addr_offset;
 		loctype = (struct lisp_map_reply_loctype *) CO(loctype, offset);
 	    }
-	} else {		/* zero locators means negative map reply */
-	    printf("  Negative cache entry, action: ");
-	    switch (eidtype->action) {
-	    case 0:
-		printf("no-action\n");
-		break;
-	    case 1:
-		printf("forward-native\n");
-		break;
-	    case 2:
-		printf("drop\n");
-		break;
-	    case 3:
-		printf("send-map-request\n");
-		break;
-	    default:
-		printf("unknown-action (%d)\n", eidtype->action);
-		break;
-	    }		
-	}
-
+	} else 		/* zero locators means negative map reply */
+	    print_negative_cache_entry(eidtype->action);
     }
 }
-
 
 
 /*

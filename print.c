@@ -10,7 +10,7 @@
  *	Thu Apr 23 15:34:18 2009
  *
  *
- *	$Header: /home/dmm/lisp/lig/RCS/print.c,v 1.11 2009/08/09 20:24:42 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/print.c,v 1.12 2009/08/10 02:59:59 dmm Exp $
  *
  */
 
@@ -136,8 +136,7 @@ void set_afi_and_addr_offset(loc_afi,afi,addr_offset)
 	*addr_offset = sizeof(struct in6_addr);
 	break;
     default:
-	fprintf(stderr, "Unknown AFI (0x%x)\n",
-		ntohs(loc_afi));
+	fprintf(stderr, "Unknown AFI (0x%x)\n", ntohs(loc_afi));
 	break;
     }
 }
@@ -158,7 +157,6 @@ void print_map_reply(map_reply,requested_eid,mr_to,mr_from,elapsed_time,from)
     long elapsed_time;
     struct in_addr *from;
 {
-
     char			   pw[8];
     char			   buf[256];
     struct in_addr		   *eid;
@@ -167,6 +165,7 @@ void print_map_reply(map_reply,requested_eid,mr_to,mr_from,elapsed_time,from)
     const char			   *formatted_addr = NULL;
     unsigned int		   offset          = 0;
     unsigned int		   addr_offset     = 0;
+    unsigned int		   nonce           = 0;
     int				   record_count    = 0;
     int				   locator_count   = 0;
     int				   afi             = 0;
@@ -177,27 +176,29 @@ void print_map_reply(map_reply,requested_eid,mr_to,mr_from,elapsed_time,from)
 	   mr_from, (double) elapsed_time/1000);
     printf("\nMapping entry for EID %s:\n", requested_eid);
 
+    record_count = map_reply->record_count;
+    nonce        = ntohl(map_reply->lisp_nonce);
 
     /*
      *	loop through the Records
      */	
 
-    record_count = map_reply->record_count;
 
     for (i = 0; i < record_count; i++) {
-	eidtype       = (struct lisp_map_reply_eidtype *) &map_reply->data;
+	eidtype       = (struct lisp_map_reply_eidtype *) &map_reply->data[i];
         locator_count = eidtype->loc_count;
 	eid           = (struct in_addr *) &eidtype->eid_prefix;
-        loctype       = (struct lisp_map_reply_loctype *)
-	    CO(eidtype->eid_prefix, sizeof(struct in_addr));
 
 	printf("%s/%d,", inet_ntoa(*eid),eidtype->eid_mask_len);
 	printf(" via map-reply, record ttl: %d, %s, nonce: 0x%x\n", 
 	       ntohl(eidtype->record_ttl), 
 	       eidtype->auth_bit ? "auth" : "not auth", 
-	       ntohl(map_reply->lisp_nonce));
+	       nonce);
 
 	if (locator_count) {		/* have some locators */
+	    loctype = (struct lisp_map_reply_loctype *)
+		CO(eidtype->eid_prefix, sizeof(struct in_addr));
+
 	    printf("  %-32s%-10s%-10s\n","Locator","State","Priority/Weight");
 
 	    /*

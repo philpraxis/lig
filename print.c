@@ -10,7 +10,7 @@
  *	Thu Apr 23 15:34:18 2009
  *
  *
- *	$Header: /home/dmm/lisp/lig/RCS/print.c,v 1.10 2009/08/09 19:56:09 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/print.c,v 1.11 2009/08/09 20:24:42 dmm Exp $
  *
  */
 
@@ -122,9 +122,9 @@ void print_negative_cache_entry(action)
  */
 
 void set_afi_and_addr_offset(loc_afi,afi,addr_offset)
-     ushort	loc_afi;
-     int	*afi;
-     int	*addr_offset;
+     ushort		loc_afi;
+     int		*afi;
+     unsigned int	*addr_offset;
 {
     switch (ntohs(loc_afi)) {
     case LISP_AFI_IP:
@@ -159,16 +159,16 @@ void print_map_reply(map_reply,requested_eid,mr_to,mr_from,elapsed_time,from)
     struct in_addr *from;
 {
 
-    struct lisp_map_reply_eidtype *eidtype;
-    struct lisp_map_reply_loctype *loctype;
-    struct in_addr		   *eid;
     char			   pw[8];
     char			   buf[256];
+    struct in_addr		   *eid;
+    struct lisp_map_reply_eidtype  *eidtype	   = NULL;
+    struct lisp_map_reply_loctype  *loctype        = NULL; 
     const char			   *formatted_addr = NULL;
+    unsigned int		   offset          = 0;
+    unsigned int		   addr_offset     = 0;
     int				   record_count    = 0;
     int				   locator_count   = 0;
-    int				   offset          = 0;
-    int				   addr_offset     = 0;
     int				   afi             = 0;
     int				   i               = 0;    
     int				   j               = 0;
@@ -207,6 +207,7 @@ void print_map_reply(map_reply,requested_eid,mr_to,mr_from,elapsed_time,from)
 
 	    for (j = 0; j < locator_count; j++) {
                 set_afi_and_addr_offset(loctype->loc_afi,&afi,&addr_offset);
+
 		if ((formatted_addr = inet_ntop(afi,
 						&loctype->locator,
 						buf,

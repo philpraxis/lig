@@ -8,7 +8,7 @@
  *	dmm@1-4-5.net
  *	Thu Apr 16 14:50:33 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig.h,v 1.42 2009/08/08 03:13:52 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig.h,v 1.43 2009/08/14 14:11:17 dmm Exp $
  *
  */
 
@@ -69,6 +69,7 @@ typedef enum			{FALSE,TRUE} boolean;
 
 #define	LISP_MAP_REQUEST	1
 #define	LISP_MAP_REPLY		2
+#define	LISP_MAP_REGISTER	3
 #define	LISP_DATA_PORT		4341
 #define	LISP_CONTROL_PORT	4342
 

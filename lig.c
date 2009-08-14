@@ -7,7 +7,7 @@
  *	dmm@1-4-5.net
  *	Thu Apr  9 09:44:57 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.54 2009/08/14 01:50:47 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.57 2009/08/14 14:13:35 dmm Exp $
  *
  */
 
@@ -55,10 +55,10 @@ int main(int argc, char *argv[])
     char *src_ip_addr  = NULL;
     char *eid_name     = NULL;
     char *mr_name      = NULL;
-    int  eid_addrtype;
-    int  eid_length;
-    int  mr_addrtype;
-    int  mr_length;
+    int  eid_addrtype  = 0;
+    int  eid_length    = 0;
+    int  mr_addrtype   = 0;
+    int  mr_length     = 0;
 
     unsigned int iseed;			/* initial random number generator */
     int i;				/* generic counter */
@@ -316,11 +316,22 @@ int main(int argc, char *argv[])
 
 	    /*
              *	We have a packet that has UDP source port = 4342.
-	     *	Assume it is a map-reply.
-             *
-             *	Now check the nonce
+	     *
+             *	Check to see that its a map-reply
              *
 	     */
+
+	    if (map_reply->lisp_type != LISP_MAP_REPLY) {
+		fprintf(stderr, "Packet not a Map Reply (0x%x)\n",
+			map_reply->lisp_type);
+		exit(BAD);
+	    }
+
+	    /*
+             * Ok, its a map-reply, now check to see if we can find
+	     * the nonce
+             *
+             */
 
 	    if (find_nonce(ntohl(map_reply->lisp_nonce),nonce, i)) {
 		print_map_reply(map_reply,

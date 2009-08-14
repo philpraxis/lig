@@ -10,7 +10,7 @@
  *	Thu Apr 23 15:34:18 2009
  *
  *
- *	$Header: /home/dmm/lisp/lig/RCS/print.c,v 1.13 2009/08/10 03:10:09 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/print.c,v 1.14 2009/08/10 16:45:17 dmm Exp $
  *
  */
 
@@ -179,10 +179,14 @@ void print_map_reply(map_reply,requested_eid,mr_to,mr_from,elapsed_time,from)
 
     /*
      *	loop through the Records
+     *
+     *	Assumes the EID-prefix is v4
+     *
      */	
 
+    eidtype = (struct lisp_map_reply_eidtype *) &map_reply->data;
+
     for (i = 0; i < record_count; i++) {
-	eidtype       = (struct lisp_map_reply_eidtype *) &map_reply->data[i];
         locator_count = eidtype->loc_count;
 	eid           = (struct in_addr *) &eidtype->eid_prefix;
 
@@ -223,8 +227,12 @@ void print_map_reply(map_reply,requested_eid,mr_to,mr_from,elapsed_time,from)
 		offset  = sizeof(struct lisp_map_reply_loctype) + addr_offset;
 		loctype = (struct lisp_map_reply_loctype *) CO(loctype, offset);
 	    }
-	} else 		/* zero locators means negative map reply */
+	} else {		/* zero locators means negative map reply */
 	    print_negative_cache_entry(eidtype->action);
+	}
+
+        /* this should be the next record */
+	eidtype = (struct lisp_map_reply_eidtype *) loctype;
     }
 }
 
@@ -264,5 +272,6 @@ void print_map_request(map_request)
     printf("eid_prefix_afi\t\t= %d\n",
 	   ntohs(map_request->eid_prefix_afi));
     printf("eid_mask_len\t\t= %d\n",map_request->eid_mask_len);
+
 
 }

@@ -7,7 +7,7 @@
  *	dmm@1-4-5.net
  *	Thu Apr  9 09:44:57 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.53 2009/08/07 16:25:05 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.54 2009/08/14 01:50:47 dmm Exp $
  *
  */
 
@@ -295,16 +295,11 @@ int main(int argc, char *argv[])
 
     for (i = 0; i < count; i++) {	
 	nonce[i] = random();
-
-	if (debug) 
-	    printf("Send map-request to %s (%s) for %s (%s) ...\n",
-		   mr_name,
-		   map_resolver,
-		   eid_name,
-		   eid);
-	else 
-	    printf("Send map-request to %s for %s ...\n", mr_name, eid_name);
-
+	printf("Send map-request to %s (%s) for %s (%s) ...\n",
+	       mr_name,
+	       map_resolver,
+	       eid_name,
+	       eid);
 	if (send_map_request(s, nonce[i], &before, eid, map_resolver, &my_addr)) {
 	    perror("can't send map-request");
 	    exit(BAD);

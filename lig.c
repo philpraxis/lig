@@ -7,7 +7,7 @@
  *	dmm@1-4-5.net
  *	Thu Apr  9 09:44:57 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.57 2009/08/14 14:13:35 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.59 2009/08/17 21:55:54 dmm Exp $
  *
  */
 
@@ -198,41 +198,22 @@ int main(int argc, char *argv[])
 	exit(BAD);
     }
 
+    /*
+     *	need a send (s) and receive (r) socket since
+     *  the packet dosn't come back to the source port 
+     *  used for sending (on s)
+     *
+     */
+
     if ((s = socket(AF_INET,SOCK_DGRAM,proto->p_proto)) < 0) {
 	perror("SOCK_DGRAM");
 	exit(1);
     }
 
-    /*
-     *	I need to receive on a RAW socket. The reason is that 
-     *  the packet is encapsulated so the inner UDP header is 
-     *  unrelated to where I'm sending it (i.e., its an EMR).
-     *
-     */
-
-    if ((r = socket(AF_INET,SOCK_RAW,proto->p_proto)) < 0) {
+    if ((r = socket(AF_INET,SOCK_DGRAM,proto->p_proto)) < 0) {
 	perror("SOCK_RAW");
 	exit(1);
     }
-
-    /* 
-     *	Dork around with privileges (SOCK_RAW and all)
-     */
-
-    if (setuid(getuid()) == -1) {
-	perror("setuid");
-	exit(BAD);
-    }
-
-    /* 
-     *	Set up the relevant offsets in the packet. Really
-     *  just want the map-reply.
-     *
-     */
-
-    iph       = (struct ip *) packet;
-    udph      = (struct udphdr *) CO(iph, sizeof(struct ip)); 
-    map_reply = (struct map_reply_pkt *) CO(udph, sizeof(struct udphdr));
 
     /*
      *	get my ip_address
@@ -300,7 +281,12 @@ int main(int argc, char *argv[])
 	       map_resolver,
 	       eid_name,
 	       eid);
-	if (send_map_request(s, nonce[i], &before, eid, map_resolver, &my_addr)) {
+	if (send_map_request(s,
+			     nonce[i],
+			     &before,
+			     eid,
+			     map_resolver,
+			     &my_addr)) {
 	    perror("can't send map-request");
 	    exit(BAD);
 	}
@@ -311,15 +297,8 @@ int main(int argc, char *argv[])
 		return(BAD);
 	    }
 
-	    if (!get_map_reply(r, packet, &from))	/* get a packet */
-		continue;				/* not a LISP control packet */
-
-	    /*
-             *	We have a packet that has UDP source port = 4342.
-	     *
-             *	Check to see that its a map-reply
-             *
-	     */
+	    get_map_reply(r, packet, &from);
+	    map_reply = (struct map_reply_pkt *) packet;
 
 	    if (map_reply->lisp_type != LISP_MAP_REPLY) {
 		fprintf(stderr, "Packet not a Map Reply (0x%x)\n",
@@ -337,7 +316,7 @@ int main(int argc, char *argv[])
 		print_map_reply(map_reply,
 				eid,
 				map_resolver,
-				strdup(inet_ntoa(iph->ip_src)),
+				strdup(inet_ntoa(from.sin_addr)),
 				tvdiff(&after,&before));
 		exit(GOOD);
 	    } else {	                    /* Otherwise assume its spoofed */
@@ -347,7 +326,7 @@ int main(int argc, char *argv[])
 		    print_map_reply(map_reply,
 				    eid,
 				    map_resolver,
-				    strdup(inet_ntoa(iph->ip_src)),
+				    strdup(inet_ntoa(from.sin_addr)),
 				    tvdiff(&after,&before));
 		continue;			/* try again if count left */
 	    }

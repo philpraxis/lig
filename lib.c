@@ -8,7 +8,7 @@
  *	dmm@1-4-5.net
  *	Thu Apr 23 15:37:01 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lib.c,v 1.27 2009/07/21 21:29:22 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lib.c,v 1.29 2009/08/17 21:55:54 dmm Exp $
  *
  */
 
@@ -78,17 +78,13 @@ wait_for_response(s,timeout)
  *
  */
 
-unsigned int get_map_reply(r,packet, from)
-     int    r;
-     u_char  *packet;
-    struct sockaddr_in	 *from;
+void get_map_reply(r,packet, from)
+	int			r;
+	u_char			*packet;
+	struct sockaddr_in	*from;
 
 {
 
-    struct ip            *iph;
-    struct udphdr        *udph;
-    struct lisphdr       *lisph;
-    struct map_reply_pkt *map_reply;
     int    fromlen =     sizeof(struct sockaddr_in);
 
     if (recvfrom(r,
@@ -101,34 +97,11 @@ unsigned int get_map_reply(r,packet, from)
 	exit(BAD);
     }
  
-    /*
-     *  check for LISP control packet...
-     */
-
-    iph       = (struct ip *)            packet;
-    udph      = (struct udphdr *)        CO(iph, sizeof(struct ip)); 
-    map_reply = (struct map_reply_pkt *) CO(udph, sizeof(struct udphdr));
-
-    if (debug > 2)
-	printf("Received packet: <%s,%d,%s,%d> (%d)\n",
-	       inet_ntoa(iph->ip_src),
-	       ntohs(udph->source),
-	       inet_ntoa(iph->ip_dst),
-	       ntohs(udph->dest),
+    if (debug)
+	printf("Received packet from %s:%d (%d)\n",
+	       inet_ntoa(from->sin_addr),
+	       ntohs(from->sin_port),
 	       emr_inner_src_port);
-
-    if (ntohs(udph->source) != LISP_CONTROL_PORT) {
-	if (debug)
-	    printf("Packet is not a Map-Reply: <%s,%d,%s,%d> (%d)\n",
-		   inet_ntoa(iph->ip_src),
-		   ntohs(udph->source),
-		   inet_ntoa(iph->ip_dst),
-		   ntohs(udph->dest),
-		   emr_inner_src_port);
-	return(0);			/* not a map-reply */
-    } else {
-	return(1);			/* is a map-reply */
-    }
 }
 
 /*

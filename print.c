@@ -10,7 +10,7 @@
  *	Thu Apr 23 15:34:18 2009
  *
  *
- *	$Header: /home/dmm/lisp/lig/RCS/print.c,v 1.14 2009/08/10 16:45:17 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/print.c,v 1.15 2009/08/17 17:03:49 dmm Exp $
  *
  */
 
@@ -149,13 +149,12 @@ void set_afi_and_addr_offset(loc_afi,afi,addr_offset)
  *
  */
 
-void print_map_reply(map_reply,requested_eid,mr_to,mr_from,elapsed_time,from)
+void print_map_reply(map_reply,requested_eid,mr_to,mr_from,elapsed_time)
     struct map_reply_pkt *map_reply;
     char *requested_eid;
     char *mr_to;
     char *mr_from;
     long elapsed_time;
-    struct in_addr *from;
 {
     char			   pw[8];
     char			   buf[256];

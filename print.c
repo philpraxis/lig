@@ -10,7 +10,7 @@
  *	Thu Apr 23 15:34:18 2009
  *
  *
- *	$Header: /home/dmm/lisp/lig/RCS/print.c,v 1.15 2009/08/17 17:03:49 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/print.c,v 1.16 2009/08/17 23:16:49 dmm Exp $
  *
  */
 
@@ -190,11 +190,15 @@ void print_map_reply(map_reply,requested_eid,mr_to,mr_from,elapsed_time)
 	eid           = (struct in_addr *) &eidtype->eid_prefix;
 
 	printf("%s/%d,", inet_ntoa(*eid),eidtype->eid_mask_len);
-	printf(" via map-reply, record ttl: %d, %s, nonce: 0x%x\n", 
-	       ntohl(eidtype->record_ttl), 
-	       eidtype->auth_bit ? "auth" : "not auth", 
-	       ntohl(map_reply->lisp_nonce));
-
+	if (debug)
+	    printf(" via map-reply, record ttl: %d, %s, nonce: 0x%x\n", 
+		   ntohl(eidtype->record_ttl), 
+		   eidtype->auth_bit ? "auth" : "not auth", 
+		   ntohl(map_reply->lisp_nonce));
+	else
+	    printf(" via map-reply, record ttl: %d, %s\n", 
+		   ntohl(eidtype->record_ttl), 
+		   eidtype->auth_bit ? "auth" : "not auth"); 
 	if (locator_count) {		/* have some locators */
 	    loctype = (struct lisp_map_reply_loctype *)
 		CO(eidtype->eid_prefix, sizeof(struct in_addr));

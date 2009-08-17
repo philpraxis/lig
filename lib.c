@@ -8,7 +8,7 @@
  *	dmm@1-4-5.net
  *	Thu Apr 23 15:37:01 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lib.c,v 1.29 2009/08/17 21:55:54 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lib.c,v 1.30 2009/08/17 23:10:01 dmm Exp $
  *
  */
 
@@ -98,10 +98,9 @@ void get_map_reply(r,packet, from)
     }
  
     if (debug)
-	printf("Received packet from %s:%d (%d)\n",
+	printf("Received packet from <%s:%d>\n",
 	       inet_ntoa(from->sin_addr),
-	       ntohs(from->sin_port),
-	       emr_inner_src_port);
+	       ntohs(from->sin_port));
 }
 
 /*

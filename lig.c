@@ -7,7 +7,7 @@
  *	dmm@1-4-5.net
  *	Thu Apr  9 09:44:57 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.59 2009/08/17 21:55:54 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.61 2009/08/17 23:16:49 dmm Exp $
  *
  */
 
@@ -206,12 +206,12 @@ int main(int argc, char *argv[])
      */
 
     if ((s = socket(AF_INET,SOCK_DGRAM,proto->p_proto)) < 0) {
-	perror("SOCK_DGRAM");
+	perror("SOCK_DGRAM (s)");
 	exit(1);
     }
 
     if ((r = socket(AF_INET,SOCK_DGRAM,proto->p_proto)) < 0) {
-	perror("SOCK_RAW");
+	perror("SOCK_DGRAM (r)");
 	exit(1);
     }
 
@@ -276,11 +276,16 @@ int main(int argc, char *argv[])
 
     for (i = 0; i < count; i++) {	
 	nonce[i] = random();
-	printf("Send map-request to %s (%s) for %s (%s) ...\n",
-	       mr_name,
-	       map_resolver,
-	       eid_name,
-	       eid);
+	if (debug)
+	    printf("Send map-request to %s (%s) for %s (%s) ...\n",
+		   mr_name,
+		   map_resolver,
+		   eid_name,
+		   eid);
+        else
+	    printf("Send map-request to %s for %s ...\n",
+		   mr_name,
+		   eid_name);
 	if (send_map_request(s,
 			     nonce[i],
 			     &before,

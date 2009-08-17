@@ -11,7 +11,7 @@
  *	dmm@1-4-5.net
  *	Mon Jul  6 09:45:50 2009
  *
- *	$Header: /home/dmm/lisp/lig.new/RCS/get_my_ip_addr.c,v 1.6 2009/07/17 16:25:09 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/get_my_ip_addr.c,v 1.7 2009/08/17 14:47:06 dmm Exp $
  *
  */
 
@@ -54,7 +54,8 @@ void get_my_ip_addr(my_addr)
 
     for (i = 0; i < count; i++) {
 	s_in = (struct sockaddr_in*) &conf.ifc_req[i].ifr_addr;
-	if (strcmp(LOOPBACK,inet_ntoa(s_in->sin_addr))) {
+	if (strcmp(LOOPBACK,inet_ntoa(s_in->sin_addr)) &&
+            strncmp(V4EID,inet_ntoa(s_in->sin_addr),V4EID_PREFIX_LEN)) {
 
 #if (DEBUG > 3)
 	    fprintf(stderr,

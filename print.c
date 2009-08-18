@@ -10,7 +10,7 @@
  *	Thu Apr 23 15:34:18 2009
  *
  *
- *	$Header: /home/dmm/lisp/lig/RCS/print.c,v 1.16 2009/08/17 23:16:49 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/print.c,v 1.17 2009/08/18 03:05:16 dmm Exp $
  *
  */
 
@@ -126,7 +126,7 @@ void set_afi_and_addr_offset(loc_afi,afi,addr_offset)
      int		*afi;
      unsigned int	*addr_offset;
 {
-    switch (ntohs(loc_afi)) {
+    switch (loc_afi) {
     case LISP_AFI_IP:
 	*afi = AF_INET;
 	*addr_offset = sizeof(struct in_addr);
@@ -136,7 +136,7 @@ void set_afi_and_addr_offset(loc_afi,afi,addr_offset)
 	*addr_offset = sizeof(struct in6_addr);
 	break;
     default:
-	fprintf(stderr, "Unknown AFI (0x%x)\n", ntohs(loc_afi));
+	fprintf(stderr, "Unknown AFI (0x%x)\n", loc_afi);
 	break;
     }
 }
@@ -211,7 +211,9 @@ void print_map_reply(map_reply,requested_eid,mr_to,mr_from,elapsed_time)
 	     */
 
 	    for (j = 0; j < locator_count; j++) {
-                set_afi_and_addr_offset(loctype->loc_afi,&afi,&addr_offset);
+                set_afi_and_addr_offset(ntohs(loctype->loc_afi),
+					&afi,
+					&addr_offset);
 
 		if ((formatted_addr = inet_ntop(afi,
 						&loctype->locator,

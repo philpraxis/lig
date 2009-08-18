@@ -10,7 +10,7 @@
  *	dmm@1-4-5.net
  *	Tue Apr 14 14:48:13 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.40 2009/07/21 21:58:43 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.41 2009/08/18 14:52:50 dmm Exp $
  *
  */
 
@@ -46,7 +46,7 @@
  *	dmm@1-4-5.net
  *	Thu Apr 16 14:46:51 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.40 2009/07/21 21:58:43 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.41 2009/08/18 14:52:50 dmm Exp $
  *
  */
 
@@ -70,6 +70,12 @@ int send_map_request(s,nonce,before,eid,map_resolver,my_addr)
     int				nbytes = 0;
 
 
+    if (debug)
+	fprintf(stderr, "send_map_request (inner header): <%s:%d,%s:%d>\n",
+		inet_ntoa(*my_addr),
+		emr_inner_src_port,
+		eid,
+		LISP_CONTROL_PORT);
 
     /*
      *	make sure packet is clean

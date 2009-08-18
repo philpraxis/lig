@@ -7,7 +7,7 @@
  *	dmm@1-4-5.net
  *	Thu Apr  9 09:44:57 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.61 2009/08/17 23:16:49 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.62 2009/08/18 14:52:50 dmm Exp $
  *
  */
 
@@ -18,12 +18,11 @@
  *	globals
  */
 
-int			s;
-int			r;
-int			debug = 0;
+int			s;			/* send socket */
+int			r;			/* receive socket */
+int			debug    = 0;
 boolean			no_reply = TRUE;
 unsigned int		*nonce;
-unsigned int		rnonce;
 struct   sockaddr_in	map_resolver_addr;
 u_char			packet[MAX_IP_PACKET];
 
@@ -146,8 +145,7 @@ int main(int argc, char *argv[])
 
 
     /*
-     * gethostbyname seems to fail if eid is 
-     * an IPv6 addresss...
+     * gethostbyname fails if eid is an IPv6 addresss (obviously)... 
      *
      */
 
@@ -190,20 +188,21 @@ int main(int argc, char *argv[])
     }
 
     /*
-     * get a UDP socket
+     *	Get a couple of UDP sockets. Can't send and receive on the
+     *	same socket since you encapsulate to the port LISP_DATA_PORT
+     *	(4341) and receive on emr_inner_src_port (and source port
+     *	LISP_CONTROL_PORT (4342)).
+     *
+     *	So send a encapsulated map-request (EMR) on socket s with dest
+     *	UDP port LISP_DATA_PORT and receive map-replies on socket r on
+     *	emr_inner_src_port (and source port LISP_CONTROL_PORT (4342)).
+     *	
      */
 
     if ((proto = getprotobyname("UDP")) == NULL) {
 	perror ("getprotobyname");
 	exit(BAD);
     }
-
-    /*
-     *	need a send (s) and receive (r) socket since
-     *  the packet dosn't come back to the source port 
-     *  used for sending (on s)
-     *
-     */
 
     if ((s = socket(AF_INET,SOCK_DGRAM,proto->p_proto)) < 0) {
 	perror("SOCK_DGRAM (s)");
@@ -217,6 +216,15 @@ int main(int argc, char *argv[])
 
     /*
      *	get my ip_address
+     *
+     *	Don't love get_my_ip_addr. It loops through
+     *	the interfaces in a way that is probably not 
+     *  POSIX compliant (SIOCGIFCONF), and looks for
+     *	an IP address that isn't a looback (127.0.0.1)
+     *  or an EID (153.16/16).
+     *
+     *	Also doesn't return IPv6 addresses.
+     *
      */
 
     if (src_ip_addr) 
@@ -224,9 +232,6 @@ int main(int argc, char *argv[])
     else 
 	get_my_ip_addr(&my_addr); 
     
-
-    if (debug)
-	fprintf(stderr, "Using source address:\t%s\n", inet_ntoa(my_addr));
 
     /* 
      *	Initialize the random number generator for the nonces
@@ -239,8 +244,8 @@ int main(int argc, char *argv[])
      *	Set up to receive a map-reply.
      *
      *	Use this for the source port on the innner UDP header, and for
-     *  the dest port when receiving a map-reply. Try to bind to this 
-     *  port; don't think this really works...
+     *  the dest port when receiving a map-reply. Bind to this 
+     *  port to the receive socket.
      *
      */
 
@@ -259,15 +264,10 @@ int main(int argc, char *argv[])
     me.sin_port        = htons(emr_inner_src_port); 
     me.sin_addr.s_addr = INADDR_ANY;
 
-    /* this doesn't work, i.e., we still receive packets to other ports */
-
     if (bind(r,(struct sockaddr *) &me, sizeof(me)) == -1) {
 	perror("bind");
 	exit(BAD);
     }
-
-    if (debug)
-	fprintf(stderr, "Using source port:\t%d\n", emr_inner_src_port);
 
     /*
      *	loop until either we get a map-reply or we 
@@ -301,14 +301,12 @@ int main(int argc, char *argv[])
 		perror("gettimeofday");
 		return(BAD);
 	    }
-
 	    get_map_reply(r, packet, &from);
 	    map_reply = (struct map_reply_pkt *) packet;
-
 	    if (map_reply->lisp_type != LISP_MAP_REPLY) {
 		fprintf(stderr, "Packet not a Map Reply (0x%x)\n",
 			map_reply->lisp_type);
-		exit(BAD);
+		continue;			/* try again */
 	    }
 
 	    /*

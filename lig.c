@@ -7,7 +7,7 @@
  *	dmm@1-4-5.net
  *	Thu Apr  9 09:44:57 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.62 2009/08/18 14:52:50 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.63 2009/08/21 17:51:37 dmm Exp $
  *
  */
 
@@ -54,6 +54,7 @@ int main(int argc, char *argv[])
     char *src_ip_addr  = NULL;
     char *eid_name     = NULL;
     char *mr_name      = NULL;
+    char *progname     = NULL;
     int  eid_addrtype  = 0;
     int  eid_length    = 0;
     int  mr_addrtype   = 0;
@@ -71,7 +72,7 @@ int main(int argc, char *argv[])
     int  count         = COUNT;
     int	 timeout       = MAP_REPLY_TIMEOUT;
 
-    while ((opt = getopt (argc, argv, optstring)) != EOF)
+    while ((opt = getopt (argc, argv, optstring)) != EOF) {
 	switch (opt) {
 	case 'c':
 	    count = atoi(optarg);
@@ -105,6 +106,7 @@ int main(int argc, char *argv[])
 	    fprintf(stderr, USAGE, argv[0]);
 	    exit (BAD);
 	}
+    }
 
     /*
      *	argv[0]:	lig
@@ -116,26 +118,40 @@ int main(int argc, char *argv[])
      *
      */
 
-    if (argc < 4) {
-	fprintf(stderr, USAGE, argv[0]);
+    /* 
+     *	first, save the program name somewhere
+     */
+
+    if ((progname  = strdup(argv[0])) == NULL) {
+	perror ("strdup");
+	exit(BAD);
+    }
+
+    argc -= optind;
+    argv += optind;
+
+    if (argc != 1) {
+	fprintf(stderr, USAGE, progname);
 	exit (BAD);
     }
+
+    if ((eid = strdup(argv[0])) == NULL) {
+	perror ("strdup(argv[0])");
+	exit(BAD);
+    }
+
 	
     /* 
      *	The requested eid should be here
      */
 
-    if ((eid = strdup(argv[optind])) == NULL) {
-	perror ("strdup(argv[optind])");
-	exit(BAD);
-    }
     if ((eid_name = strdup(eid)) == NULL) {
 	perror ("strdup(eid)");
 	exit(BAD);
     }
     if (map_resolver == NULL) {
 	fprintf(stderr, "-m <map resolver> not specified\n");
-	fprintf(stderr, USAGE, argv[0]);
+	fprintf(stderr, USAGE, progname);
 	exit(BAD);
     }
     if ((mr_name = strdup(map_resolver)) == NULL) {

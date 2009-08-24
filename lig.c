@@ -7,7 +7,7 @@
  *	dmm@1-4-5.net
  *	Thu Apr  9 09:44:57 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.63 2009/08/21 17:51:37 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.64 2009/08/24 16:15:13 dmm Exp $
  *
  */
 
@@ -247,7 +247,6 @@ int main(int argc, char *argv[])
 	my_addr.s_addr = inet_addr(src_ip_addr); 
     else 
 	get_my_ip_addr(&my_addr); 
-    
 
     /* 
      *	Initialize the random number generator for the nonces

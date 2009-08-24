@@ -11,7 +11,7 @@
  *	dmm@1-4-5.net
  *	Mon Jul  6 09:45:50 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/get_my_ip_addr.c,v 1.7 2009/08/17 14:47:06 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/get_my_ip_addr.c,v 1.8 2009/08/24 16:15:13 dmm Exp $
  *
  */
 
@@ -19,6 +19,30 @@
 #include	"lig.h"
 #include	"lig-external.h"
 
+
+/*
+ *	usable_addr
+ *
+ *	Basically, don't use the a looback or EID as 
+ *	a source address
+ *
+ */
+
+unsigned int usable_addr(addr)
+     char	*addr;
+{
+    return(strcmp(LOOPBACK,addr) && strncmp(V4EID,addr,V4EID_PREFIX_LEN));
+}
+
+/*
+ *	get_my_ip_addr
+ *
+ *	Get a usable IPv4 address for the source in the inner header in 
+ *	the EMR we're about to send.
+ *
+ *	Probably not POSIX
+ *
+ */
 
 void get_my_ip_addr(my_addr)
      struct     in_addr *my_addr;
@@ -54,8 +78,7 @@ void get_my_ip_addr(my_addr)
 
     for (i = 0; i < count; i++) {
 	s_in = (struct sockaddr_in*) &conf.ifc_req[i].ifr_addr;
-	if (strcmp(LOOPBACK,inet_ntoa(s_in->sin_addr)) &&
-            strncmp(V4EID,inet_ntoa(s_in->sin_addr),V4EID_PREFIX_LEN)) {
+        if (usable_addr(inet_ntoa(s_in->sin_addr))) {
 
 #if (DEBUG > 3)
 	    fprintf(stderr,

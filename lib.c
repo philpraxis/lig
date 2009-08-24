@@ -8,7 +8,7 @@
  *	dmm@1-4-5.net
  *	Thu Apr 23 15:37:01 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lib.c,v 1.32 2009/08/24 16:15:13 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lib.c,v 1.33 2009/08/24 17:37:51 dmm Exp $
  *
  */
 
@@ -87,7 +87,7 @@ void get_map_reply(r,packet, from)
 
     int fromlen = sizeof(struct sockaddr_in);
 
-    memset((char *) &from, 0, sizeof(from));
+    memset((char *) from, 0, sizeof(*from));
 
     if (recvfrom(r,
 		 packet,

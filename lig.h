@@ -8,7 +8,7 @@
  *	dmm@1-4-5.net
  *	Thu Apr 16 14:50:33 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig.h,v 1.45 2009/08/25 17:40:24 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig.h,v 1.46 2009/08/25 20:35:46 dmm Exp $
  *
  */
 
@@ -51,7 +51,7 @@ typedef enum			{FALSE,TRUE} boolean;
 #define	MAX_EPHEMERAL_PORT	61000
 
 #define	USAGE	"usage: %s [-d] <eid> -m <map resolver> \
-[-c <count>] [-t <timeout>]\n"
+[-c <count>] [-p <port>] [-t <timeout>]\n"
 
 /*
  *	CO --

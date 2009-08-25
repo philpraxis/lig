@@ -7,7 +7,7 @@
  *	dmm@1-4-5.net
  *	Thu Apr  9 09:44:57 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.64 2009/08/24 16:15:13 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.66 2009/08/25 20:50:02 dmm Exp $
  *
  */
 
@@ -68,9 +68,10 @@ int main(int argc, char *argv[])
      */  
 
     int  opt           = 0;
-    char *optstring    = "c:dm:t:s:";
+    char *optstring    = "c:dm:p:t:s:";
     int  count         = COUNT;
     int	 timeout       = MAP_REPLY_TIMEOUT;
+    emr_inner_src_port = 0;
 
     while ((opt = getopt (argc, argv, optstring)) != EOF) {
 	switch (opt) {
@@ -85,6 +86,9 @@ int main(int argc, char *argv[])
 	    break;
 	case 'd':
 	    debug = 1;
+	    break;
+	case 'p':
+	    emr_inner_src_port = atoi(optarg);
 	    break;
 	case 'm':
 	    map_resolver = strdup(optarg);
@@ -158,7 +162,6 @@ int main(int argc, char *argv[])
 	perror ("strdup(map_resolver)");
 	exit(BAD);
     }
-
 
     /*
      * gethostbyname fails if eid is an IPv6 addresss (obviously)... 
@@ -266,19 +269,19 @@ int main(int argc, char *argv[])
 
     memset(packet,         0, MAX_IP_PACKET);
     memset((char *) &me,   0, sizeof(me));
-    memset((char *) &from, 0, sizeof(from));
 
     /*
      * http://tools.ietf.org/html/draft-larsen-tsvwg-port-randomization-02.txt
      */
 
-    emr_inner_src_port   = MIN_EPHEMERAL_PORT +
-	random() % (MAX_EPHEMERAL_PORT - MIN_EPHEMERAL_PORT);
+    if (!emr_inner_src_port)
+	emr_inner_src_port = MIN_EPHEMERAL_PORT +
+	    random() % (MAX_EPHEMERAL_PORT - MIN_EPHEMERAL_PORT);
 
-    me.sin_family      = AF_INET;
     me.sin_port        = htons(emr_inner_src_port); 
+    me.sin_family      = AF_INET;
     me.sin_addr.s_addr = INADDR_ANY;
-
+	
     if (bind(r,(struct sockaddr *) &me, sizeof(me)) == -1) {
 	perror("bind");
 	exit(BAD);

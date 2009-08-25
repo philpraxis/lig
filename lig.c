@@ -7,7 +7,7 @@
  *	dmm@1-4-5.net
  *	Thu Apr  9 09:44:57 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.66 2009/08/25 20:50:02 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.68 2009/08/25 21:57:33 dmm Exp $
  *
  */
 
@@ -112,18 +112,8 @@ int main(int argc, char *argv[])
 	}
     }
 
-    /*
-     *	argv[0]:	lig
-     *  argv[1]:	<eid>
-     *  argv[2]:	-t
-     *  argv[3]:	<mr>
-     *
-     * at least...
-     *
-     */
-
     /* 
-     *	first, save the program name somewhere
+     *	save the program name somewhere
      */
 
     if ((progname  = strdup(argv[0])) == NULL) {
@@ -153,11 +143,13 @@ int main(int argc, char *argv[])
 	perror ("strdup(eid)");
 	exit(BAD);
     }
+
     if (map_resolver == NULL) {
 	fprintf(stderr, "-m <map resolver> not specified\n");
 	fprintf(stderr, USAGE, progname);
 	exit(BAD);
     }
+
     if ((mr_name = strdup(map_resolver)) == NULL) {
 	perror ("strdup(map_resolver)");
 	exit(BAD);
@@ -281,7 +273,7 @@ int main(int argc, char *argv[])
     me.sin_port        = htons(emr_inner_src_port); 
     me.sin_family      = AF_INET;
     me.sin_addr.s_addr = INADDR_ANY;
-	
+
     if (bind(r,(struct sockaddr *) &me, sizeof(me)) == -1) {
 	perror("bind");
 	exit(BAD);
@@ -304,16 +296,10 @@ int main(int argc, char *argv[])
 	    printf("Send map-request to %s for %s ...\n",
 		   mr_name,
 		   eid_name);
-	if (send_map_request(s,
-			     nonce[i],
-			     &before,
-			     eid,
-			     map_resolver,
-			     &my_addr)) {
+	if (send_map_request(s, nonce[i], &before, eid, map_resolver, &my_addr)) {
 	    perror("can't send map-request");
 	    exit(BAD);
 	}
-
         if (wait_for_response(r,timeout)) {	
 	    if (gettimeofday(&after,NULL) == -1) {
 		perror("gettimeofday");

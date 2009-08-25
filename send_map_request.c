@@ -10,7 +10,7 @@
  *	dmm@1-4-5.net
  *	Tue Apr 14 14:48:13 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.42 2009/08/24 18:12:13 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.43 2009/08/25 21:42:46 dmm Exp $
  *
  */
 
@@ -46,7 +46,7 @@
  *	dmm@1-4-5.net
  *	Thu Apr 16 14:46:51 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.42 2009/08/24 18:12:13 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.43 2009/08/25 21:42:46 dmm Exp $
  *
  */
 
@@ -109,19 +109,20 @@ int send_map_request(s,nonce,before,eid,map_resolver,my_addr)
     udph        = (struct udphdr *)          CO(iph,   sizeof(struct ip));
     map_request = (struct map_request_pkt *) CO(udph,  sizeof(struct udphdr));
 
-    ip_len      = sizeof(struct ip)     +
-	sizeof(struct udphdr) +
-	sizeof(struct map_request_pkt);
+    /*
+     *  compute lengths of interest
+     */
 
+    ip_len      = sizeof(struct ip) + sizeof(struct udphdr) + sizeof(struct map_request_pkt);
     packet_len  = ip_len + sizeof(struct lisphdr);
 
     /*
      *	Build the outer LISP header 
      */
 
-    lisph->smr_bit= 0;
+    lisph->smr_bit             = 0;
     lisph->lisp_loc_reach_bits = 0;		/* no reachability info */
-    lisph->lisp_nonce = htonl(nonce);
+    lisph->lisp_nonce          = htonl(nonce);
 
     /*
      *	Build inner IP header
@@ -269,6 +270,6 @@ int send_map_request(s,nonce,before,eid,map_resolver,my_addr)
     }
 
     return(GOOD);
-     }
+}
 
 

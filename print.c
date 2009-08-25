@@ -10,7 +10,7 @@
  *	Thu Apr 23 15:34:18 2009
  *
  *
- *	$Header: /home/dmm/lisp/lig/RCS/print.c,v 1.18 2009/08/25 17:40:24 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/print.c,v 1.19 2009/08/25 21:51:58 dmm Exp $
  *
  */
 
@@ -167,8 +167,8 @@ void print_map_reply(map_reply,requested_eid,mr_to,mr_from,elapsed_time)
     int				   record_count    = 0;
     int				   locator_count   = 0;
     int				   afi             = 0;
-    int				   i               = 0;    
-    int				   j               = 0;
+    int				   record          = 0;    
+    int				   locator         = 0;
 
     printf("Received map-reply from %s with rtt %2.5f secs\n",
 	   mr_from, (double) elapsed_time/1000);
@@ -185,7 +185,11 @@ void print_map_reply(map_reply,requested_eid,mr_to,mr_from,elapsed_time)
 
     eidtype = (struct lisp_map_reply_eidtype *) &map_reply->data;
 
-    for (i = 0; i < record_count; i++) {
+    /*
+     *	loop through the records
+     */
+
+    for (record = 0; record < record_count; record++) {
         locator_count = eidtype->loc_count;
 	eid           = (struct in_addr *) &eidtype->eid_prefix;
 
@@ -206,11 +210,10 @@ void print_map_reply(map_reply,requested_eid,mr_to,mr_from,elapsed_time)
 	    printf("  %-32s%-10s%-10s\n","Locator","State","Priority/Weight");
 
 	    /*
-	     * loop through the locators in the record
-             *
+	     * loop through the locators (per record)
 	     */
 
-	    for (j = 0; j < locator_count; j++) {
+	    for (locator = 0; locator < locator_count; locator++) {
                 set_afi_and_addr_offset(ntohs(loctype->loc_afi),
 					&afi,
 					&addr_offset);

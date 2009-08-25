@@ -8,7 +8,7 @@
  *	dmm@1-4-5.net
  *	Thu Apr 16 14:50:33 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig.h,v 1.44 2009/08/17 14:47:06 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig.h,v 1.45 2009/08/25 17:40:24 dmm Exp $
  *
  */
 
@@ -74,6 +74,15 @@ typedef enum			{FALSE,TRUE} boolean;
 #define	LISP_MAP_REGISTER	3
 #define	LISP_DATA_PORT		4341
 #define	LISP_CONTROL_PORT	4342
+
+/*
+ *	Map Reply action codes
+ */
+
+#define LISP_ACTION_NO_ACTION		0
+#define LISP_ACTION_FORWARD		1
+#define LISP_ACTION_DROP		2
+#define LISP_ACTION_SEND_MAP_REQUEST	3
 
 /*
  *	#define AF_INET         2

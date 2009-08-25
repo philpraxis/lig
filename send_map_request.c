@@ -10,7 +10,7 @@
  *	dmm@1-4-5.net
  *	Tue Apr 14 14:48:13 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.41 2009/08/18 14:52:50 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.42 2009/08/24 18:12:13 dmm Exp $
  *
  */
 
@@ -46,7 +46,7 @@
  *	dmm@1-4-5.net
  *	Thu Apr 16 14:46:51 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.41 2009/08/18 14:52:50 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.42 2009/08/24 18:12:13 dmm Exp $
  *
  */
 
@@ -70,7 +70,7 @@ int send_map_request(s,nonce,before,eid,map_resolver,my_addr)
     int				nbytes = 0;
 
 
-    if (debug)
+    if (debug > 2)
 	fprintf(stderr, "send_map_request (inner header): <%s:%d,%s:%d>\n",
 		inet_ntoa(*my_addr),
 		emr_inner_src_port,

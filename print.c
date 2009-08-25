@@ -10,7 +10,7 @@
  *	Thu Apr 23 15:34:18 2009
  *
  *
- *	$Header: /home/dmm/lisp/lig/RCS/print.c,v 1.17 2009/08/18 03:05:16 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/print.c,v 1.18 2009/08/25 17:40:24 dmm Exp $
  *
  */
 
@@ -93,16 +93,16 @@ void print_negative_cache_entry(action)
 {
     printf("  Negative cache entry, action: ");
     switch (action) {
-    case 0:
+    case LISP_ACTION_NO_ACTION:
 	printf("no-action\n");
 	break;
-    case 1:
+    case LISP_ACTION_FORWARD:
 	printf("forward-native\n");
 	break;
-    case 2:
+    case LISP_ACTION_DROP:
 	printf("drop\n");
 	break;
-    case 3:
+    case LISP_ACTION_SEND_MAP_REQUEST:
 	printf("send-map-request\n");
 	break;
     default:

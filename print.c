@@ -10,7 +10,7 @@
  *	Thu Apr 23 15:34:18 2009
  *
  *
- *	$Header: /home/dmm/lisp/lig/RCS/print.c,v 1.20 2009/08/26 21:54:20 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/print.c,v 1.21 2009/08/26 22:09:12 dmm Exp $
  *
  */
 
@@ -162,7 +162,6 @@ void print_map_reply(map_reply,requested_eid,mr_to,mr_from,elapsed_time)
     struct lisp_map_reply_eidtype  *eidtype	   = NULL;
     struct lisp_map_reply_loctype  *loctype        = NULL; 
     const char			   *formatted_addr = NULL;
-    unsigned int		   offset          = 0;
     unsigned int		   addr_offset     = 0;
     int				   record_count    = 0;
     int				   locator_count   = 0;
@@ -225,8 +224,8 @@ void print_map_reply(map_reply,requested_eid,mr_to,mr_from,elapsed_time)
 		       loctype->reach_bit ? "up" : "down",
 		       pw);
 
-		offset  = sizeof(struct lisp_map_reply_loctype) + addr_offset;
-		loctype = (struct lisp_map_reply_loctype *) CO(loctype, offset);
+		loctype = (struct lisp_map_reply_loctype *)
+		    CO(loctype, (sizeof(struct lisp_map_reply_loctype) + addr_offset)); 
 	    }
 	} else {		/* zero locators means negative map reply */
 	    print_negative_cache_entry(eidtype->action);

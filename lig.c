@@ -7,7 +7,7 @@
  *	dmm@1-4-5.net
  *	Thu Apr  9 09:44:57 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.68 2009/08/25 21:57:33 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.69 2009/08/26 15:01:43 dmm Exp $
  *
  */
 
@@ -176,8 +176,7 @@ int main(int argc, char *argv[])
     eid          = strdup(inet_ntoa(*((struct in_addr *)hostent->h_addr)));
 
     if ((hostent = gethostbyname(map_resolver)) == NULL) {
-	fprintf(stderr, "gethostbyname for %s failed (%s)\n",
-		map_resolver, hstrerror(h_errno));
+	fprintf(stderr, "gethostbyname for %s failed (%s)\n", map_resolver, hstrerror(h_errno));
 	exit(BAD);
     }
 
@@ -259,8 +258,8 @@ int main(int argc, char *argv[])
      *
      */
 
-    memset(packet,         0, MAX_IP_PACKET);
-    memset((char *) &me,   0, sizeof(me));
+    memset(packet,       0, MAX_IP_PACKET);
+    memset((char *) &me, 0, sizeof(me));
 
     /*
      * http://tools.ietf.org/html/draft-larsen-tsvwg-port-randomization-02.txt

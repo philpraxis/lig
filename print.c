@@ -10,7 +10,7 @@
  *	Thu Apr 23 15:34:18 2009
  *
  *
- *	$Header: /home/dmm/lisp/lig/RCS/print.c,v 1.19 2009/08/25 21:51:58 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/print.c,v 1.20 2009/08/26 21:54:20 dmm Exp $
  *
  */
 
@@ -214,18 +214,11 @@ void print_map_reply(map_reply,requested_eid,mr_to,mr_from,elapsed_time)
 	     */
 
 	    for (locator = 0; locator < locator_count; locator++) {
-                set_afi_and_addr_offset(ntohs(loctype->loc_afi),
-					&afi,
-					&addr_offset);
-
-		if ((formatted_addr = inet_ntop(afi,
-						&loctype->locator,
-						buf,
-						sizeof(buf))) == NULL) {
+                set_afi_and_addr_offset(ntohs(loctype->loc_afi), &afi, &addr_offset);
+		if ((formatted_addr = inet_ntop(afi, &loctype->locator, buf, sizeof(buf))) == NULL) {
 		    perror("inet_ntop");
 		    exit(BAD);
 		}
-
 		sprintf(pw, "%d/%d", loctype->priority, loctype->weight);
 		printf("  %-32s%-10s%-10s\n",
 		       formatted_addr,

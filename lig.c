@@ -7,7 +7,7 @@
  *	dmm@1-4-5.net
  *	Thu Apr  9 09:44:57 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.69 2009/08/26 15:01:43 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.70 2009/08/27 14:25:01 dmm Exp $
  *
  */
 
@@ -71,6 +71,7 @@ int main(int argc, char *argv[])
     char *optstring    = "c:dm:p:t:s:";
     int  count         = COUNT;
     int	 timeout       = MAP_REPLY_TIMEOUT;
+    unsigned int port  = 0;
     emr_inner_src_port = 0;
 
     while ((opt = getopt (argc, argv, optstring)) != EOF) {
@@ -88,7 +89,11 @@ int main(int argc, char *argv[])
 	    debug = 1;
 	    break;
 	case 'p':
-	    emr_inner_src_port = atoi(optarg);
+	    if ((port = atoi(optarg)) > MAX_EPHEMERAL_PORT) {
+		fprintf(stderr, "%s: Invalid port (%d)\n", argv[0], port);
+		exit(BAD);
+	    }
+	    emr_inner_src_port = (ushort) port;
 	    break;
 	case 'm':
 	    map_resolver = strdup(optarg);

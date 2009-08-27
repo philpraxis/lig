@@ -8,7 +8,7 @@
  *	dmm@1-4-5.net
  *	Thu Apr 16 14:50:33 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig.h,v 1.46 2009/08/25 20:35:46 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig.h,v 1.47 2009/08/27 14:25:01 dmm Exp $
  *
  */
 
@@ -48,7 +48,7 @@ typedef enum			{FALSE,TRUE} boolean;
 #define	V4EID		        "153.16"
 #define	V4EID_PREFIX_LEN        6	/* characters in "153.16" */
 #define	MIN_EPHEMERAL_PORT	32768
-#define	MAX_EPHEMERAL_PORT	61000
+#define	MAX_EPHEMERAL_PORT	65535
 
 #define	USAGE	"usage: %s [-d] <eid> -m <map resolver> \
 [-c <count>] [-p <port>] [-t <timeout>]\n"

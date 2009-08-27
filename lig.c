@@ -7,7 +7,7 @@
  *	dmm@1-4-5.net
  *	Thu Apr  9 09:44:57 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.70 2009/08/27 14:25:01 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.71 2009/08/27 14:36:51 dmm Exp $
  *
  */
 
@@ -60,6 +60,7 @@ int main(int argc, char *argv[])
     int  mr_addrtype   = 0;
     int  mr_length     = 0;
 
+    unsigned int port  = 0;		/* if -p <port> specified, put it in here to find overflow */
     unsigned int iseed;			/* initial random number generator */
     int i;				/* generic counter */
 
@@ -71,8 +72,8 @@ int main(int argc, char *argv[])
     char *optstring    = "c:dm:p:t:s:";
     int  count         = COUNT;
     int	 timeout       = MAP_REPLY_TIMEOUT;
-    unsigned int port  = 0;
-    emr_inner_src_port = 0;
+
+    emr_inner_src_port = 0;		
 
     while ((opt = getopt (argc, argv, optstring)) != EOF) {
 	switch (opt) {
@@ -96,10 +97,16 @@ int main(int argc, char *argv[])
 	    emr_inner_src_port = (ushort) port;
 	    break;
 	case 'm':
-	    map_resolver = strdup(optarg);
+	    if ((map_resolver = strdup(optarg)) == NULL) {
+		perror ("strdup(map_resolver)");
+		exit(BAD);
+	    }
 	    break;
 	case 's':
-	    src_ip_addr = strdup(optarg);
+	    if ((src_ip_addr = strdup(optarg)) == NULL) {
+		perror ("strdup(src_ip_addr)");
+		exit(BAD);
+	    }
 	    break;
 	case 't':
 	    timeout = atoi(optarg);		/* seconds */
@@ -138,7 +145,6 @@ int main(int argc, char *argv[])
 	perror ("strdup(argv[0])");
 	exit(BAD);
     }
-
 	
     /* 
      *	The requested eid should be here

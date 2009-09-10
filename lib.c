@@ -1,14 +1,30 @@
 /*
- *	lig-lib.c
+ *	lib.c
  *
- *	Various library routines
- * 
+ *	Various lig library routines
  *
  *	David Meyer
  *	dmm@1-4-5.net
  *	Thu Apr 23 15:37:01 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lib.c,v 1.35 2009/08/26 21:46:34 dmm Exp $
+ *	This program is free software; you can redistribute it
+ *	and/or modify it under the terms of the GNU General
+ *	Public License as published by the Free Software
+ *	Foundation; either version 2 of the License, or (at your
+ *	option) any later version. 
+ *
+ *	This program is distributed in the hope that it will be
+ *	useful,  but WITHOUT ANY WARRANTY; without even the
+ *	implied warranty of MERCHANTABILITY or FITNESS FOR A
+ *	PARTICULAR PURPOSE.  See the GNU General Public License
+ *	for more details. 
+ *
+ *	You should have received a copy of the GNU General Public
+ *	License along with this program; if not, write to the
+ *	Free Software Foundation, Inc., 59 Temple Place - Suite
+ *	330, Boston, MA  02111-1307, USA. 
+ *
+ *	$Header: /home/dmm/lisp/lig/RCS/lib.c,v 1.37 2009/09/10 23:22:23 dmm Exp $
  *
  */
 
@@ -106,22 +122,26 @@ void get_map_reply(r,packet, from)
 }
 
 /*
+ *	find_nonce --
+ *
  *	find the matching nonce, if any
+ *
+ *	09/10/2009:	nonce increased to 64 bits
  */
 
-find_nonce(rnonce, nonce, count)
-  unsigned int	rnonce;
-  unsigned int	*nonce;
-  int		count;
+find_nonce(map_reply, nonce, count)
+  struct   map_reply_pkt *map_reply;
+  unsigned int	         *nonce;
+  int		          count;
 
 {
     int i;
 
-    for (i = 0; i <= count; i++) {
-	if (rnonce == nonce[i]) {
+    for (i = 0; i <= 2*count; i += 2) {
+	if ((ntohl(map_reply->lisp_nonce0) == nonce[i]) &&
+	    (ntohl(map_reply->lisp_nonce1) == nonce[i+1])) 
 	    return(1);			/* good nonce */
-	}
-    }
+    }	  
     return(0);				/* nope...*/
 }
 

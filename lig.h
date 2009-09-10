@@ -3,12 +3,26 @@
  *
  *	Definitions for lig
  *
- *
  *	David Meyer
  *	dmm@1-4-5.net
  *	Thu Apr 16 14:50:33 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig.h,v 1.47 2009/08/27 14:25:01 dmm Exp $
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ *
+ *
+ *	$Header: /home/dmm/lisp/lig/RCS/lig.h,v 1.51 2009/09/10 23:22:23 dmm Exp $
  *
  */
 
@@ -106,7 +120,9 @@ typedef enum			{FALSE,TRUE} boolean;
  *     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  *     |Type=1 |A|M|P|S|           Reserved            | Record Count  |
  *     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- *     |                             Nonce                             |
+ *     |                             Nonce0                             |
+ *     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *     |                             Nonce1                             |
  *     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  *     |         Source-EID-AFI        |            ITR-AFI            |
  *     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -142,7 +158,8 @@ struct map_request_pkt {
 #endif
 	ushort          reserved;
 	u_char          record_count;
-	unsigned int    lisp_nonce;
+	unsigned int    lisp_nonce0;
+	unsigned int    lisp_nonce1;
 	ushort          source_eid_afi;
 	ushort          itr_afi;
 	struct in_addr	source_eid;
@@ -175,7 +192,9 @@ struct lisphdr {
  *     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  *     |Type=2 |P|            Reserved                 | Record Count  |
  *     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- *     |                             Nonce                             |
+ *     |                             Nonce0                             |
+ *     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *     |                             Nonce1                             |
  * +-> +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  * |   |                          Record  TTL                          |
  * |   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -198,17 +217,20 @@ struct lisphdr {
 
 struct map_reply_pkt {
 #ifdef __LITTLE_ENDIAN
-     int            rsvd:3;
+     int            rsvd:2;
+     int            echo_nonce_capable:1;
      int            rloc_probe:1;
      int            lisp_type:4;
 #else
      int            lisp_type:4;
      int            rloc_probe:1;
-     int            rsvd:3;
+     int            echo_nonce_capable:1;
+     int            rsvd:2;
 #endif
      ushort         reserved;
      u_char         record_count;
-     unsigned int   lisp_nonce;
+     unsigned int   lisp_nonce0;
+     unsigned int   lisp_nonce1;
      u_char         data[0];
 }  __attribute__ ((__packed__));
 
@@ -219,13 +241,15 @@ struct lisp_map_reply_eidtype {
     u_char          loc_count;
     u_char          eid_mask_len;
 #ifdef __LITTLE_ENDIAN
-    int             reserved:12;
-    int             action:3;
+    int             reserved:11;
+    int		    mobility_bit:1;
     int             auth_bit:1;
+    int             action:3;
 #else
+    int		    action:3;
     int             auth_bit:1;
-    int             action:3;
-    int             reserved:12;
+    int             mobility_bit:1;
+    int             reserved:11;
 #endif
     ushort          reserved2;
     ushort          eid_afi;
@@ -262,8 +286,12 @@ struct lisp_addrtype {
 
 
 /*
- *  source port in the EMR's inner UDP header. Try to listen  for 
- *  this port in the returned map-reply. Doesn't really work...
+ *  emr_inner_src_port --
+ * 
+ *  source port in the EMR's inner UDP header. Listen on
+ *  this port in the returned map-reply (the source port on
+ *  the map-reply is 4342).
+ *
  */
 
 ushort emr_inner_src_port;

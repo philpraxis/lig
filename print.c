@@ -4,13 +4,32 @@
  *	08072009:
  *		make print_map_reply handle IPv6 RLOCs
  *
+ *	09102009:
+ *		update to the 04 spec including 64 bit nonces
+ *
  *
  *	David Meyer
  *	dmm@1-4-5.net
  *	Thu Apr 23 15:34:18 2009
  *
+ *	This program is free software; you can redistribute it
+ *	and/or modify it under the terms of the GNU General
+ *	Public License as published by the Free Software
+ *	Foundation; either version 2 of the License, or (at your
+ *	option) any later version. 
  *
- *	$Header: /home/dmm/lisp/lig/RCS/print.c,v 1.21 2009/08/26 22:09:12 dmm Exp $
+ *	This program is distributed in the hope that it will be
+ *	useful,  but WITHOUT ANY WARRANTY; without even the
+ *	implied warranty of MERCHANTABILITY or FITNESS FOR A
+ *	PARTICULAR PURPOSE.  See the GNU General Public License
+ *	for more details. 
+ *
+ *	You should have received a copy of the GNU General Public
+ *	License along with this program; if not, write to the
+ *	Free Software Foundation, Inc., 59 Temple Place - Suite
+ *	330, Boston, MA  02111-1307, USA. 
+ *
+ *	$Header: /home/dmm/lisp/lig/RCS/print.c,v 1.24 2009/09/10 23:22:23 dmm Exp $
  *
  */
 
@@ -193,15 +212,11 @@ void print_map_reply(map_reply,requested_eid,mr_to,mr_from,elapsed_time)
 	eid           = (struct in_addr *) &eidtype->eid_prefix;
 
 	printf("%s/%d,", inet_ntoa(*eid),eidtype->eid_mask_len);
-	if (debug)
-	    printf(" via map-reply, record ttl: %d, %s, nonce: 0x%x\n", 
-		   ntohl(eidtype->record_ttl), 
-		   eidtype->auth_bit ? "auth" : "not auth", 
-		   ntohl(map_reply->lisp_nonce));
-	else
-	    printf(" via map-reply, record ttl: %d, %s\n", 
-		   ntohl(eidtype->record_ttl), 
-		   eidtype->auth_bit ? "auth" : "not auth"); 
+	printf(" via map-reply, record ttl: %d, %s, %s\n", 
+	       ntohl(eidtype->record_ttl), 
+	       eidtype->auth_bit ? "auth" : "not auth", 
+	       eidtype->mobility_bit ? "mobile" : "not mobile");
+
 	if (locator_count) {		/* have some locators */
 	    loctype = (struct lisp_map_reply_loctype *)
 		CO(eidtype->eid_prefix, sizeof(struct in_addr));
@@ -254,7 +269,9 @@ void print_map_request(map_request)
     printf("map_data_present\t= %d\n",map_request->map_data_present);
     printf("auth_bit\t\t= 0x%x\n", map_request->auth_bit);
     printf("lisp_type\t\t= %d\n",map_request->lisp_type);
-    printf("lisp_nonce\t\t= 0x%x\n", ntohl(map_request->lisp_nonce)); 
+    printf("lisp_nonce\t\t= 0x%08x-0x%08x\n",
+	   ntohl(map_request->lisp_nonce0), 
+	   ntohl(map_request->lisp_nonce1)); 
     printf("reserved\t\t\t= %d\n",map_request->reserved);
     printf("reserved1\t\t= %d\n",map_request->reserved1);
     printf("record_count\t\t= %d\n",map_request->record_count);

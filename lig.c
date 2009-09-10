@@ -1,13 +1,30 @@
 /* 
  *	lig.c --
  * 
- *	Main loop for lig
+ *	lig -- LISP Internet Grouper
  *
  *	David Meyer
  *	dmm@1-4-5.net
  *	Thu Apr  9 09:44:57 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.71 2009/08/27 14:36:51 dmm Exp $
+ *	This program is free software; you can redistribute it
+ *	and/or modify it under the terms of the GNU General
+ *	Public License as published by the Free Software
+ *	Foundation; either version 2 of the License, or (at your
+ *	option) any later version. 
+ *
+ *	This program is distributed in the hope that it will be
+ *	useful,  but WITHOUT ANY WARRANTY; without even the
+ *	implied warranty of MERCHANTABILITY or FITNESS FOR A
+ *	PARTICULAR PURPOSE.  See the GNU General Public License
+ *	for more details. 
+ *
+ *	You should have received a copy of the GNU General Public
+ *	License along with this program; if not, write to the
+ *	Free Software Foundation, Inc., 59 Temple Place - Suite
+ *	330, Boston, MA  02111-1307, USA. 
+ *
+ *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.73 2009/09/10 23:22:23 dmm Exp $
  *
  */
 
@@ -60,9 +77,9 @@ int main(int argc, char *argv[])
     int  mr_addrtype   = 0;
     int  mr_length     = 0;
 
+    int i = 0;				/* generic counter */
     unsigned int port  = 0;		/* if -p <port> specified, put it in here to find overflow */
     unsigned int iseed;			/* initial random number generator */
-    int i;				/* generic counter */
 
     /*
      *	parse args
@@ -81,7 +98,7 @@ int main(int argc, char *argv[])
 	    count = atoi(optarg);
 	    if ((count < MIN_COUNT) || (count > MAX_COUNT)) {
 		fprintf(stderr,
-			"%s: Invalid number, specify count in the range (%u:%u)\n",
+		  "%s: Invalid number, specify count in the range (%u:%u)\n",
 			argv[0], MIN_COUNT,MAX_COUNT);
 		exit(BAD);
 	    }
@@ -187,7 +204,9 @@ int main(int argc, char *argv[])
     eid          = strdup(inet_ntoa(*((struct in_addr *)hostent->h_addr)));
 
     if ((hostent = gethostbyname(map_resolver)) == NULL) {
-	fprintf(stderr, "gethostbyname for %s failed (%s)\n", map_resolver, hstrerror(h_errno));
+	fprintf(stderr, "gethostbyname for %s failed (%s)\n",
+		map_resolver,
+		hstrerror(h_errno));
 	exit(BAD);
     }
 
@@ -203,7 +222,7 @@ int main(int argc, char *argv[])
      *	get an array of nonces of size count
      */
 
-    if ((nonce = (unsigned int *) malloc(count*sizeof(unsigned int))) < 0) {
+    if ((nonce = (unsigned int *) malloc(2*count*sizeof(unsigned int))) < 0) {
 	perror ("malloc (nonce)");
 	exit(BAD);
     }
@@ -292,10 +311,21 @@ int main(int argc, char *argv[])
     /*
      *	loop until either we get a map-reply or we 
      *	try count times
+     * 
+     *  09/10/2009: nonce is now 64 bits, so we have 
+     *              2*count unsigned ints in the nonce array.
+     *	            Hence we loop 2*count times
+     *
      */
 
-    for (i = 0; i < count; i++) {	
-	nonce[i] = random();
+    for (i = 0; i <= 2*count; i += 2) {
+	/* 
+         * 64 bit nonces as of draft-ietf-lisp-04.txt 
+	 */
+
+	nonce[i]   = random();			/* nonce0 */
+	nonce[i+1] = random()^time(NULL);       /* nonce1 */
+
 	if (debug)
 	    printf("Send map-request to %s (%s) for %s (%s) ...\n",
 		   mr_name,
@@ -306,7 +336,13 @@ int main(int argc, char *argv[])
 	    printf("Send map-request to %s for %s ...\n",
 		   mr_name,
 		   eid_name);
-	if (send_map_request(s, nonce[i], &before, eid, map_resolver, &my_addr)) {
+	if (send_map_request(s,
+			     nonce[i],
+			     nonce[i+1],
+			     &before,
+			     eid,
+			     map_resolver,
+			     &my_addr)) {
 	    perror("can't send map-request");
 	    exit(BAD);
 	}
@@ -329,7 +365,7 @@ int main(int argc, char *argv[])
              *
              */
 
-	    if (find_nonce(ntohl(map_reply->lisp_nonce),nonce, i)) {
+	    if (find_nonce(map_reply,nonce, i)) {
 		print_map_reply(map_reply,
 				eid,
 				map_resolver,
@@ -337,7 +373,8 @@ int main(int argc, char *argv[])
 				tvdiff(&after,&before));
 		exit(GOOD);
 	    } else {	                    /* Otherwise assume its spoofed */
-		printf("Apparently spoofed map-reply (0x%x)\n", nonce[i]);
+		printf("Apparently spoofed map-reply: 0x%08x-0x%08x\n",
+		       nonce[i],nonce[i+1]);
                 no_reply = FALSE;
 		if (debug)
 		    print_map_reply(map_reply,
@@ -348,7 +385,8 @@ int main(int argc, char *argv[])
 		continue;			/* try again if count left */
 	    }
 
-	} 					/* we timed out */
+	}
+	/* we timed out */
     }
     if (no_reply)
 	printf("*** No map-reply received ***\n");

@@ -4,13 +4,29 @@
  *
  *      Functions related to sending a map-request
  *
- *
- *
  *	David Meyer
  *	dmm@1-4-5.net
  *	Tue Apr 14 14:48:13 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.43 2009/08/25 21:42:46 dmm Exp $
+ *	This program is free software; you can redistribute it
+ *	and/or modify it under the terms of the GNU General
+ *	Public License as published by the Free Software
+ *	Foundation; either version 2 of the License, or (at your
+ *	option) any later version. 
+ *
+ *	This program is distributed in the hope that it will be
+ *	useful,  but WITHOUT ANY WARRANTY; without even the
+ *	implied warranty of MERCHANTABILITY or FITNESS FOR A
+ *	PARTICULAR PURPOSE.  See the GNU General Public License
+ *	for more details. 
+ *
+ *	You should have received a copy of the GNU General Public
+ *	License along with this program; if not, write to the
+ *	Free Software Foundation, Inc., 59 Temple Place - Suite
+ *	330, Boston, MA  02111-1307, USA. 
+ *
+ *
+ *	 $Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.45 2009/09/10 23:22:23 dmm Exp $ 
  *
  */
 
@@ -46,13 +62,14 @@
  *	dmm@1-4-5.net
  *	Thu Apr 16 14:46:51 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.43 2009/08/25 21:42:46 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.45 2009/09/10 23:22:23 dmm Exp $
  *
  */
 
-int send_map_request(s,nonce,before,eid,map_resolver,my_addr)
+int send_map_request(s,nonce0,nonce1,before,eid,map_resolver,my_addr)
      int		s;
-     unsigned int	nonce;
+     unsigned int	nonce0;
+     unsigned int	nonce1;
      struct timeval     *before;
      char		*eid;
      char		*map_resolver;
@@ -122,7 +139,7 @@ int send_map_request(s,nonce,before,eid,map_resolver,my_addr)
 
     lisph->smr_bit             = 0;
     lisph->lisp_loc_reach_bits = 0;		/* no reachability info */
-    lisph->lisp_nonce          = htonl(nonce);
+    lisph->lisp_nonce          = htonl(nonce0);
 
     /*
      *	Build inner IP header
@@ -199,7 +216,8 @@ int send_map_request(s,nonce,before,eid,map_resolver,my_addr)
     map_request->lisp_type                   = 1;	/* Map-Request */
     map_request->reserved                    = htons(0);
     map_request->record_count                = 1;
-    map_request->lisp_nonce                  = htonl(nonce); 
+    map_request->lisp_nonce0                 = htonl(nonce0); 
+    map_request->lisp_nonce1                 = htonl(nonce1); 
     map_request->source_eid_afi              = htons(LISP_AFI_IP);
     map_request->itr_afi                     = htons(LISP_AFI_IP);
     map_request->source_eid.s_addr           = inet_addr("0.0.0.0");

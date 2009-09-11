@@ -24,7 +24,7 @@
  *	Free Software Foundation, Inc., 59 Temple Place - Suite
  *	330, Boston, MA  02111-1307, USA. 
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.75 2009/09/11 15:00:51 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.76 2009/09/11 15:21:02 dmm Exp $
  *
  */
 
@@ -221,7 +221,9 @@ int main(int argc, char *argv[])
     map_resolver = strdup(inet_ntoa(*((struct in_addr *)hostent->h_addr)));
 
     /*
-     *	get an array of nonces of size count
+     *	get an array of nonces of size 2*count
+     *  (need 2*count as nonces are 64 bit as of 
+     *	draft-ietf-lisp-04.txt)
      */
 
     if ((nonce = (unsigned int *) malloc(2*count*sizeof(unsigned int))) < 0) {
@@ -373,15 +375,12 @@ int main(int argc, char *argv[])
 				tvdiff(&after,&before));
 		exit(GOOD);
 	    } else {	                    /* Otherwise assume its spoofed */
-		printf("Apparently spoofed map-reply: 0x%08x-0x%08x\n",
-		       nonce0,nonce1);
+		printf("Spoofed map-reply: 0x%08x/0x%08x-0x%08x/0x%08x\n",
+                       nonce0,
+		       ntohl(map_reply->lisp_nonce0),
+		       nonce1,
+		       ntohl(map_reply->lisp_nonce1));
                 no_reply = FALSE;
-		if (debug)
-		    print_map_reply(map_reply,
-				    eid,
-				    map_resolver,
-				    strdup(inet_ntoa(from.sin_addr)),
-				    tvdiff(&after,&before));
 		continue;			/* try again if count left */
 	    }
 

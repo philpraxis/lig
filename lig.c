@@ -24,7 +24,7 @@
  *	Free Software Foundation, Inc., 59 Temple Place - Suite
  *	330, Boston, MA  02111-1307, USA. 
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.73 2009/09/10 23:22:23 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.74 2009/09/11 02:56:27 dmm Exp $
  *
  */
 
@@ -314,7 +314,6 @@ int main(int argc, char *argv[])
      * 
      *  09/10/2009: nonce is now 64 bits, so we have 
      *              2*count unsigned ints in the nonce array.
-     *	            Hence we loop 2*count times
      *
      */
 

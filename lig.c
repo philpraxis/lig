@@ -24,7 +24,7 @@
  *	Free Software Foundation, Inc., 59 Temple Place - Suite
  *	330, Boston, MA  02111-1307, USA. 
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.74 2009/09/11 02:56:27 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.75 2009/09/11 15:00:51 dmm Exp $
  *
  */
 
@@ -80,6 +80,8 @@ int main(int argc, char *argv[])
     int i = 0;				/* generic counter */
     unsigned int port  = 0;		/* if -p <port> specified, put it in here to find overflow */
     unsigned int iseed;			/* initial random number generator */
+    unsigned int nonce0;
+    unsigned int nonce1;   
 
     /*
      *	parse args
@@ -317,13 +319,11 @@ int main(int argc, char *argv[])
      *
      */
 
-    for (i = 0; i <= 2*count; i += 2) {
-	/* 
-         * 64 bit nonces as of draft-ietf-lisp-04.txt 
-	 */
+    for (i = 0; i <= count; i++) {
 
-	nonce[i]   = random();			/* nonce0 */
-	nonce[i+1] = random()^time(NULL);       /* nonce1 */
+	build_nonce(&nonce0,&nonce1);
+	nonce[2*i]     = nonce0;	/* save these for later (find_nonce) */
+	nonce[(2*i)+1] = nonce1;
 
 	if (debug)
 	    printf("Send map-request to %s (%s) for %s (%s) ...\n",
@@ -335,9 +335,10 @@ int main(int argc, char *argv[])
 	    printf("Send map-request to %s for %s ...\n",
 		   mr_name,
 		   eid_name);
+
 	if (send_map_request(s,
-			     nonce[i],
-			     nonce[i+1],
+			     nonce0,
+			     nonce1,
 			     &before,
 			     eid,
 			     map_resolver,
@@ -364,7 +365,7 @@ int main(int argc, char *argv[])
              *
              */
 
-	    if (find_nonce(map_reply,nonce, i)) {
+	    if (find_nonce(map_reply,nonce, (i+1))) {
 		print_map_reply(map_reply,
 				eid,
 				map_resolver,
@@ -373,7 +374,7 @@ int main(int argc, char *argv[])
 		exit(GOOD);
 	    } else {	                    /* Otherwise assume its spoofed */
 		printf("Apparently spoofed map-reply: 0x%08x-0x%08x\n",
-		       nonce[i],nonce[i+1]);
+		       nonce0,nonce1);
                 no_reply = FALSE;
 		if (debug)
 		    print_map_reply(map_reply,

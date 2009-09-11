@@ -7,6 +7,7 @@
  *	09102009:
  *		update to the 04 spec including 64 bit nonces
  *
+ *
  *	David Meyer
  *	dmm@1-4-5.net
  *	Thu Apr 23 15:34:18 2009

@@ -24,7 +24,7 @@
  *	Free Software Foundation, Inc., 59 Temple Place - Suite
  *	330, Boston, MA  02111-1307, USA. 
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lib.c,v 1.37 2009/09/10 23:22:23 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lib.c,v 1.38 2009/09/11 15:00:51 dmm Exp $
  *
  */
 
@@ -121,10 +121,32 @@ void get_map_reply(r,packet, from)
 	       ntohs(from->sin_port));
 }
 
+
+/*
+ *	build_nonce 
+ *
+ *	Build 64 bit nonce per draft-ietf-lisp-04.txt and RFC 4086. 
+ *
+ *	Use a simple algorithm (see below).
+ *
+ */
+
+void build_nonce(nonce0,nonce1)
+     unsigned int	*nonce0;
+     unsigned int	*nonce1;
+{
+	*nonce0 = random();
+	*nonce1 = random()^time(NULL);
+}
+
+
 /*
  *	find_nonce --
  *
- *	find the matching nonce, if any
+ *	Find the matching nonce, if any. Note that the
+ *	nonce is two unsigned ints, so the two ints are
+ *	at (2*i) and [(2*i)+1]
+ *	
  *
  *	09/10/2009:	nonce increased to 64 bits
  */
@@ -137,10 +159,11 @@ find_nonce(map_reply, nonce, count)
 {
     int i;
 
-    for (i = 0; i <= 2*count; i += 2) {
-	if ((ntohl(map_reply->lisp_nonce0) == nonce[i]) &&
-	    (ntohl(map_reply->lisp_nonce1) == nonce[i+1])) 
+    for (i = 0; i <= count; i++) {
+	if ((ntohl(map_reply->lisp_nonce0) == nonce[(2*i)]) &&
+	    (ntohl(map_reply->lisp_nonce1) == nonce[(2*i)+1])) {
 	    return(1);			/* good nonce */
+	}
     }	  
     return(0);				/* nope...*/
 }

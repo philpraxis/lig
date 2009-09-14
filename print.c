@@ -1,5 +1,11 @@
 /*
- *	Various diagnostic print routines
+ *
+ *	print.c -- 
+ *
+ *	Various diagnostic print routines for lig
+ *
+ *	By David Meyer <dmm@1-4-5.net>
+ *	Copyright 2009 David Meyer
  *
  *	08072009:
  *		make print_map_reply handle IPv6 RLOCs
@@ -29,7 +35,7 @@
  *	Free Software Foundation, Inc., 59 Temple Place - Suite
  *	330, Boston, MA  02111-1307, USA. 
  *
- *	$Header: /home/dmm/lisp/lig/RCS/print.c,v 1.24 2009/09/10 23:22:23 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/print.c,v 1.25 2009/09/14 01:51:46 dmm Exp $
  *
  */
 

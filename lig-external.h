@@ -2,6 +2,9 @@
 /*
  *	lig-external.h
  *
+ *	By David Meyer <dmm@1-4-5.net>
+ *	Copyright 2009 David Meyer
+ *
  *	Any externals that everyone needs go here.
  *
  *	David Meyer
@@ -22,7 +25,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig-external.h,v 1.13 2009/09/10 23:22:23 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig-external.h,v 1.14 2009/09/14 01:51:46 dmm Exp $
  *
  */
 

@@ -1,6 +1,8 @@
 /*
  *	send_map_request.c
  *
+ *	By David Meyer <dmm@1-4-5.net>
+ *	Copyright 2009 David Meyer
  *
  *      Functions related to sending a map-request
  *
@@ -26,7 +28,7 @@
  *	330, Boston, MA  02111-1307, USA. 
  *
  *
- *	 $Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.46 2009/09/14 01:34:19 dmm Exp $ 
+ *	 $Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.47 2009/09/14 01:51:46 dmm Exp $ 
  *
  */
 
@@ -62,7 +64,7 @@
  *	dmm@1-4-5.net
  *	Thu Apr 16 14:46:51 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.46 2009/09/14 01:34:19 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.47 2009/09/14 01:51:46 dmm Exp $
  *
  */
 

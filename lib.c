@@ -3,6 +3,9 @@
  *
  *	Various lig library routines
  *
+ *	By David Meyer <dmm@1-4-5.net>
+ *	Copyright 2009 David Meyer
+ *
  *	David Meyer
  *	dmm@1-4-5.net
  *	Thu Apr 23 15:37:01 2009
@@ -24,7 +27,7 @@
  *	Free Software Foundation, Inc., 59 Temple Place - Suite
  *	330, Boston, MA  02111-1307, USA. 
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lib.c,v 1.39 2009/09/14 01:34:09 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lib.c,v 1.40 2009/09/14 01:51:46 dmm Exp $
  *
  */
 

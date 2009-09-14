@@ -1,6 +1,9 @@
 /* 
  *	cksum.c --
  * 
+ *	By David Meyer <dmm@1-4-5.net>
+ *	Copyright 2009 David Meyer
+ *
  *	Compute the IP checksum for lig
  *
  *	David Meyer
@@ -24,7 +27,7 @@
  *	Free Software Foundation, Inc., 59 Temple Place - Suite
  *	330, Boston, MA  02111-1307, USA. 
  *
- *	$Header: /home/dmm/lisp/lig/RCS/cksum.c,v 1.2 2009/09/10 23:23:46 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/cksum.c,v 1.3 2009/09/14 01:51:46 dmm Exp $
  *
  */
 

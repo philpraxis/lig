@@ -1,6 +1,9 @@
 /*
  *	lig.h --
  *
+ *	By David Meyer <dmm@1-4-5.net>
+ *	Copyright 2009 David Meyer
+ *
  *	Definitions for lig
  *
  *	David Meyer
@@ -24,7 +27,7 @@
  *	Free Software Foundation, Inc., 59 Temple Place - Suite
  *	330, Boston, MA  02111-1307, USA. 
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig.h,v 1.54 2009/09/14 01:34:19 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig.h,v 1.57 2009/09/14 01:51:46 dmm Exp $
  *
  */
 
@@ -48,9 +51,9 @@
 #include	<net/if.h>
 #include	<sys/ioctl.h>
 
-typedef enum	{FALSE,TRUE} boolean;
-
+typedef enum			{FALSE,TRUE} boolean;
 #define	uchar			u_char
+
 #define GOOD			0
 #define BAD			-1
 #define	MAX_IP_PACKET		4096

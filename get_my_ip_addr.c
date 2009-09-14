@@ -1,6 +1,9 @@
 /*
  *	get_my_ip_addr.c
  *
+ *	By David Meyer <dmm@1-4-5.net>
+ *	Copyright 2009 David Meyer
+ *
  *	Basically, loop through the interfaces
  *	and take the first non-loopback interface.
  *
@@ -27,7 +30,7 @@
  *	Free Software Foundation, Inc., 59 Temple Place - Suite
  *	330, Boston, MA  02111-1307, USA. 
  *
- *	$Header: /home/dmm/lisp/lig/RCS/get_my_ip_addr.c,v 1.9 2009/09/10 23:22:23 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/get_my_ip_addr.c,v 1.10 2009/09/14 01:51:46 dmm Exp $
  *
  */
 

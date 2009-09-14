@@ -24,7 +24,7 @@
  *	Free Software Foundation, Inc., 59 Temple Place - Suite
  *	330, Boston, MA  02111-1307, USA. 
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.76 2009/09/11 15:21:02 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.77 2009/09/14 01:34:09 dmm Exp $
  *
  */
 
@@ -41,7 +41,7 @@ int			debug    = 0;
 boolean			no_reply = TRUE;
 unsigned int		*nonce;
 struct   sockaddr_in	map_resolver_addr;
-u_char			packet[MAX_IP_PACKET];
+uchar			packet[MAX_IP_PACKET];
 
 /*
  *	use these to construct and parse packets

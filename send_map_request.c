@@ -26,7 +26,7 @@
  *	330, Boston, MA  02111-1307, USA. 
  *
  *
- *	 $Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.45 2009/09/10 23:22:23 dmm Exp $ 
+ *	 $Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.46 2009/09/14 01:34:19 dmm Exp $ 
  *
  */
 
@@ -62,7 +62,7 @@
  *	dmm@1-4-5.net
  *	Thu Apr 16 14:46:51 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.45 2009/09/10 23:22:23 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.46 2009/09/14 01:34:19 dmm Exp $
  *
  */
 
@@ -76,7 +76,7 @@ int send_map_request(s,nonce0,nonce1,before,eid,map_resolver,my_addr)
      struct in_addr	*my_addr; 
 {
 
-    u_char			packet[MAX_IP_PACKET];	
+    uchar			packet[MAX_IP_PACKET];	
     struct sockaddr_in		mr;
     struct lisphdr		*lisph;
     struct ip			*iph;

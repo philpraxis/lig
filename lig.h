@@ -24,7 +24,7 @@
  *	Free Software Foundation, Inc., 59 Temple Place - Suite
  *	330, Boston, MA  02111-1307, USA. 
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig.h,v 1.53 2009/09/14 01:16:34 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig.h,v 1.54 2009/09/14 01:34:19 dmm Exp $
  *
  */
 
@@ -48,10 +48,11 @@
 #include	<net/if.h>
 #include	<sys/ioctl.h>
 
-typedef enum			{FALSE,TRUE} boolean;
+typedef enum	{FALSE,TRUE} boolean;
 
-#define GOOD			  0
-#define BAD			  -1
+#define	uchar			u_char
+#define GOOD			0
+#define BAD			-1
 #define	MAX_IP_PACKET		4096
 #define	COUNT			3
 #define MIN_COUNT		1
@@ -146,28 +147,28 @@ typedef enum			{FALSE,TRUE} boolean;
 
 struct map_request_pkt {
 #ifdef __LITTLE_ENDIAN
-	u_char          smr_bit:1;
-	u_char          rloc_probe:1;
-	u_char          map_data_present:1;
-	u_char          auth_bit:1;
-	u_char          lisp_type:4;
+	uchar           smr_bit:1;
+	uchar           rloc_probe:1;
+	uchar           map_data_present:1;
+	uchar           auth_bit:1;
+	uchar           lisp_type:4;
 #else
-	u_char          lisp_type:4;
-	u_char          auth_bit:1;
-	u_char          map_data_present:1;
-	u_char          rloc_probe:1;
-	u_char          smr_bit:1;
+	uchar           lisp_type:4;
+	uchar           auth_bit:1;
+	uchar           map_data_present:1;
+	uchar           rloc_probe:1;
+	uchar           smr_bit:1;
 #endif
 	ushort          reserved;
-	u_char          record_count;
+	uchar           record_count;
 	unsigned int    lisp_nonce0;
 	unsigned int    lisp_nonce1;
 	ushort          source_eid_afi;
 	ushort          itr_afi;
 	struct in_addr	source_eid;
 	struct in_addr	originating_itr_rloc;
-	u_char		reserved1;
-	u_char		eid_mask_len;
+	uchar 		reserved1;
+	uchar 		eid_mask_len;
 	ushort		eid_prefix_afi;
 	struct in_addr	eid_prefix;
 } __attribute__ ((__packed__));
@@ -230,18 +231,18 @@ struct map_reply_pkt {
      int            rsvd:2;
 #endif
      ushort         reserved;
-     u_char         record_count;
+     uchar          record_count;
      unsigned int   lisp_nonce0;
      unsigned int   lisp_nonce1;
-     u_char         data[0];
+     uchar          data[0];
 }  __attribute__ ((__packed__));
 
 
 
 struct lisp_map_reply_eidtype {
     unsigned int	record_ttl;
-    u_char		loc_count;
-    u_char		eid_mask_len;
+    uchar 		loc_count;
+    uchar 		eid_mask_len;
 #ifdef __LITTLE_ENDIAN
     int			reserved:3;
     int			mobility_bit:1;
@@ -253,27 +254,27 @@ struct lisp_map_reply_eidtype {
     int			mobility_bit:1;
     int			reserved:3;
 #endif
-    u_char		reserved2;
+    uchar 		reserved2;
     ushort		reserved3;
     ushort		eid_afi;
-    u_char		eid_prefix[0];         /* ITR-locator than EID-prefix */
+    uchar 		eid_prefix[0];         /* ITR-locator than EID-prefix */
 } __attribute__ ((__packed__));
 
 struct lisp_map_reply_loctype {
-    u_char  priority;
-    u_char  weight;
-    u_char  mpriority;
-    u_char  mweight;
-    u_char  unused_flags1;
+    uchar   priority;
+    uchar   weight;
+    uchar   mpriority;
+    uchar   mweight;
+    uchar   unused_flags1;
 #ifdef __LITTLE_ENDIAN
-    u_char  reach_bit:1;
-    u_char  unused_flags2:7;
+    uchar   reach_bit:1;
+    uchar   unused_flags2:7;
 #else
-    u_char  unused_flags2:7;
-    u_char  reach_bit:1;
+    uchar   unused_flags2:7;
+    uchar   reach_bit:1;
 #endif
     ushort loc_afi;
-    u_char  locator[0];
+    uchar   locator[0];
 } __attribute__ ((__packed__));
 
 /*

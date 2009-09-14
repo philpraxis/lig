@@ -24,7 +24,7 @@
  *	Free Software Foundation, Inc., 59 Temple Place - Suite
  *	330, Boston, MA  02111-1307, USA. 
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lib.c,v 1.38 2009/09/11 15:00:51 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lib.c,v 1.39 2009/09/14 01:34:09 dmm Exp $
  *
  */
 
@@ -96,7 +96,7 @@ wait_for_response(s,timeout)
 
 void get_map_reply(r,packet, from)
 	int			r;
-	u_char			*packet;
+	uchar			*packet;
 	struct sockaddr_in	*from;
 
 {

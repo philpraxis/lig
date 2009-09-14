@@ -24,7 +24,7 @@
  *	Free Software Foundation, Inc., 59 Temple Place - Suite
  *	330, Boston, MA  02111-1307, USA. 
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig.h,v 1.52 2009/09/11 00:02:41 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig.h,v 1.53 2009/09/14 01:16:34 dmm Exp $
  *
  */
 
@@ -239,23 +239,24 @@ struct map_reply_pkt {
 
 
 struct lisp_map_reply_eidtype {
-    unsigned int    record_ttl;
-    u_char          loc_count;
-    u_char          eid_mask_len;
+    unsigned int	record_ttl;
+    u_char		loc_count;
+    u_char		eid_mask_len;
 #ifdef __LITTLE_ENDIAN
-    int             reserved:11;
-    int		    mobility_bit:1;
-    int             auth_bit:1;
-    int             action:3;
+    int			reserved:3;
+    int			mobility_bit:1;
+    int			auth_bit:1;
+    int			action:3;
 #else
-    int		    action:3;
-    int             auth_bit:1;
-    int             mobility_bit:1;
-    int             reserved:11;
+    int			action:3;
+    int			auth_bit:1;
+    int			mobility_bit:1;
+    int			reserved:3;
 #endif
-    ushort          reserved2;
-    ushort          eid_afi;
-    u_char          eid_prefix[0];             /* ITR-locator than EID-prefix */
+    u_char		reserved2;
+    ushort		reserved3;
+    ushort		eid_afi;
+    u_char		eid_prefix[0];         /* ITR-locator than EID-prefix */
 } __attribute__ ((__packed__));
 
 struct lisp_map_reply_loctype {

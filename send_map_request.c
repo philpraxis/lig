@@ -28,7 +28,7 @@
  *	330, Boston, MA  02111-1307, USA. 
  *
  *
- *	 $Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.47 2009/09/14 01:51:46 dmm Exp $ 
+ *	 $Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.48 2009/09/14 14:27:53 dmm Exp $ 
  *
  */
 
@@ -64,7 +64,7 @@
  *	dmm@1-4-5.net
  *	Thu Apr 16 14:46:51 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.47 2009/09/14 01:51:46 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.48 2009/09/14 14:27:53 dmm Exp $
  *
  */
 
@@ -139,10 +139,12 @@ int send_map_request(s,nonce0,nonce1,before,eid,map_resolver,my_addr)
      *	Build the outer LISP header 
      */
 
-    lisph->smr_bit             = 0;
-    lisph->lisp_loc_reach_bits = 0;		/* no reachability info */
-    lisph->lisp_nonce          = htonl(nonce0);
-
+    lisph->n_bit                = 0;
+    lisph->l_bit                = 0;
+    lisph->e_bit                = 0;
+    lisph->rflags               = 0;
+    lisph->lisp_data_nonce      = htonl(nonce0);
+    lisph->lisp_loc_status_bits = 0;
     /*
      *	Build inner IP header
      *

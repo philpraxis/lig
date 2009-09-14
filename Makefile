@@ -1,6 +1,9 @@
 #
 #	Make the LISP Internet Grouper (lig)
 #
+#	By David Meyer <dmm@1-4-5.net>
+#	Copyright 2009 David Meyer
+#
 #	David Meyer
 #	dmm@1-4-5.net
 #	Wed Apr  8 13:36:24 2009
@@ -22,7 +25,7 @@
 #	Free Software Foundation, Inc., 59 Temple Place - Suite
 #	330, Boston, MA  02111-1307, USA. 
 #
-#	$Header: /home/dmm/lisp/lig/RCS/Makefile,v 1.9 2009/09/10 23:22:23 dmm Exp $
+#	$Header: /home/dmm/lisp/lig/RCS/Makefile,v 1.10 2009/09/14 01:56:11 dmm Exp $
 #
 
 

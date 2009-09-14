@@ -35,7 +35,7 @@
  *	Free Software Foundation, Inc., 59 Temple Place - Suite
  *	330, Boston, MA  02111-1307, USA. 
  *
- *	$Header: /home/dmm/lisp/lig/RCS/print.c,v 1.25 2009/09/14 01:51:46 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/print.c,v 1.26 2009/09/14 14:27:53 dmm Exp $
  *
  */
 
@@ -53,9 +53,14 @@ void print_lisp_header(lisphdr)
 {
     printf("\nLISP Header\n");
     printf("=========\n");
-    printf("lisphdr->lisp_loc_reach_bits\t= %d\n",  lisphdr->lisp_loc_reach_bits);
-    printf("lisphdr->smr_bit\t\t= %d\n",   lisphdr->smr_bit);
-    printf("lisphdr->nonce\t\t\t= 0x%x\n", ntohl(lisphdr->lisp_nonce));
+    printf("lisphdr->n_bit  = %d\n", lisphdr->n_bit);
+    printf("lisphdr->l_bit  = %d\n", lisphdr->l_bit);
+    printf("lisphdr->e_bit  = %d\n", lisphdr->e_bit);
+    printf("lisphdr->rflags = 0x%x\n", lisphdr->rflags); 
+    printf("lisphdr->lisp_loc_status_bits\t= %d\n",
+	   lisphdr->lisp_loc_status_bits);
+    printf("lisphdr->lisp_data_nonce\t\t\t= 0x%x\n",
+	   ntohl(lisphdr->lisp_data_nonce));
 }
 
 /*

@@ -27,7 +27,7 @@
  *	Free Software Foundation, Inc., 59 Temple Place - Suite
  *	330, Boston, MA  02111-1307, USA. 
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.78 2009/09/14 01:51:46 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.80 2009/09/14 14:50:25 dmm Exp $
  *
  */
 
@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
      */  
 
     int  opt           = 0;
-    char *optstring    = "c:dm:p:t:s:";
+    char *optstring    = "c:dm:p:t:s:v";
     int  count         = COUNT;
     int	 timeout       = MAP_REPLY_TIMEOUT;
 
@@ -140,6 +140,9 @@ int main(int argc, char *argv[])
 	    }
 	    timeout = timeout*1000;		/* convert to ms */
 	    break;
+	case 'v':
+	    fprintf(stderr, VERSION, argv[0]);
+	    exit (GOOD);
 	default:
 	    fprintf(stderr, USAGE, argv[0]);
 	    exit (BAD);

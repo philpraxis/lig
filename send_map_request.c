@@ -28,7 +28,7 @@
  *	330, Boston, MA  02111-1307, USA. 
  *
  *
- *	 $Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.48 2009/09/14 14:27:53 dmm Exp $ 
+ *	 $Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.49 2009/09/14 23:02:03 dmm Exp $ 
  *
  */
 
@@ -64,7 +64,7 @@
  *	dmm@1-4-5.net
  *	Thu Apr 16 14:46:51 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.48 2009/09/14 14:27:53 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.49 2009/09/14 23:02:03 dmm Exp $
  *
  */
 
@@ -181,36 +181,37 @@ int send_map_request(s,nonce0,nonce1,before,eid,map_resolver,my_addr)
     udph->len    = htons(sizeof(struct udphdr) + sizeof(struct map_request_pkt));
     udph->check  = 0;
 #endif
-    /*
-     * Build the Map-Request
-     *
-     * 6.1.2.  Map-Request Message Format
-     *
-     *
 
-     *         0                   1                   2                   3
-     *         0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-     *        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-     *        |Type=1 |A|M|P|S|           Reserved            | Record Count  |
-     *        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-     *        |                             Nonce                             |
-     *        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-     *        |         Source-EID-AFI        |            ITR-AFI            |
-     *        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-     *        |                   Source EID Address  ...                     |
-     *        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-     *        |                Originating ITR RLOC Address ...               |
-     *        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-     *      / |   Reserved    | EID mask-len  |        EID-prefix-AFI         |
-     *    Rec +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-     *      \ |                       EID-prefix  ...                         |
-     *        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-     *        |                   Map-Reply Record  ...                       |
-     *        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-     *        |                     Mapping Protocol Data                     |
-     *        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+    /* 
+     *	Build the Map-Request
      *
-     */
+     *	Map-Request Message Format 
+     *    
+     *     0                   1                   2                   3 
+     *     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 
+     *     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ 
+     *     |Type=1 |A|M|P|S|         Reserved              | Record Count  | 
+     *     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ 
+     *     |                         Nonce . . .                           | 
+     *     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ 
+     *     |                         . . . Nonce                           | 
+     *     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ 
+     *     |         Source-EID-AFI        |            ITR-AFI            | 
+     *     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ 
+     *     |                   Source EID Address  ...                     | 
+     *     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ 
+     *     |                Originating ITR RLOC Address ...               | 
+     *     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ 
+     *   / |   Reserved    | EID mask-len  |        EID-prefix-AFI         | 
+     * Rec +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ 
+     *   \ |                       EID-prefix  ...                         | 
+     *     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ 
+     *     |                   Map-Reply Record  ...                       | 
+     *     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ 
+     *     |                     Mapping Protocol Data                     | 
+     *     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ 
+     */ 
 
 
     map_request->smr_bit                     = 0;
@@ -219,7 +220,7 @@ int send_map_request(s,nonce0,nonce1,before,eid,map_resolver,my_addr)
     map_request->auth_bit                    = 0;
     map_request->lisp_type                   = 1;	/* Map-Request */
     map_request->reserved                    = htons(0);
-    map_request->record_count                = 1;
+    map_request->record_count                = LISP_MAP_REQUEST;
     map_request->lisp_nonce0                 = htonl(nonce0); 
     map_request->lisp_nonce1                 = htonl(nonce1); 
     map_request->source_eid_afi              = htons(LISP_AFI_IP);

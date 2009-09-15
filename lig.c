@@ -27,7 +27,7 @@
  *	Free Software Foundation, Inc., 59 Temple Place - Suite
  *	330, Boston, MA  02111-1307, USA. 
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.80 2009/09/14 14:50:25 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.81 2009/09/15 14:56:00 dmm Exp $
  *
  */
 
@@ -327,7 +327,7 @@ int main(int argc, char *argv[])
      *
      */
 
-    for (i = 0; i <= count; i++) {
+    for (i = 0; i < count; i++) {
 
 	build_nonce(&nonce0,&nonce1);
 	nonce[2*i]     = nonce0;	/* save these for later (find_nonce) */

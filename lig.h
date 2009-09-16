@@ -27,7 +27,7 @@
  *	Free Software Foundation, Inc., 59 Temple Place - Suite
  *	330, Boston, MA  02111-1307, USA. 
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig.h,v 1.60 2009/09/14 14:50:25 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig.h,v 1.61 2009/09/16 14:34:29 dmm Exp $
  *
  */
 
@@ -73,7 +73,17 @@ typedef enum			{FALSE,TRUE} boolean;
 #define	USAGE	"usage: %s [-d] <eid> -m <map resolver> \
 [-c <count>] [-p <port>] [-t <timeout>] [-v]\n"
 
-#define	VERSION "%s version 0.0.1 (draft-ietf-lisp-04.txt)\n"
+/*
+ *	VERSION 
+ *
+ *	XXYYZZ, where
+ * 
+ *	XX is the draft-ietf-lisp-XX.txt version
+ *	YY is the draft-ietf-lisp-ms-YY.txt version
+ *      ZZ is the lig version
+ */
+
+#define	VERSION "%s version 04.02.01\n"
 
 
 /*

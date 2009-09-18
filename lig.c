@@ -27,7 +27,7 @@
  *	Free Software Foundation, Inc., 59 Temple Place - Suite
  *	330, Boston, MA  02111-1307, USA. 
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.81 2009/09/15 14:56:00 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.81 2009/09/15 14:56:00 dmm Exp dmm $
  *
  */
 

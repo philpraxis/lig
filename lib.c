@@ -27,7 +27,7 @@
  *	Free Software Foundation, Inc., 59 Temple Place - Suite
  *	330, Boston, MA  02111-1307, USA. 
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lib.c,v 1.40 2009/09/14 01:51:46 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lib.c,v 1.40 2009/09/14 01:51:46 dmm Exp dmm $
  *
  */
 
@@ -138,8 +138,8 @@ void build_nonce(nonce0,nonce1)
      unsigned int	*nonce0;
      unsigned int	*nonce1;
 {
-	*nonce0 = random();
-	*nonce1 = random()^time(NULL);
+    *nonce0 = random()^random();
+    *nonce1 = random()^time(NULL);
 }
 
 

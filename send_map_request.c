@@ -28,7 +28,7 @@
  *	330, Boston, MA  02111-1307, USA. 
  *
  *
- *	 $Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.49 2009/09/14 23:02:03 dmm Exp $ 
+ *	 $Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.50 2009/09/18 00:14:48 dmm Exp dmm $ 
  *
  */
 
@@ -43,13 +43,12 @@
  *
  *	Here's the packet we need to build:
  *
- *                IP header (kernel does this on socket s)
- *                UDP header (DEST PORT = 4341, UDP socket/kernel does this)
- *       lisph -> LISP header
- *  packet,iph -> IP header (SRC = this host,  DEST = eid)
- *	  udph -> UDP (SRC PORT = ANY DEST PORT = 4342)
- * map_request -> struct map-request
- *
+ *                      IP header (ip.src = <us>, ip.dst = <map-resolver>) 
+ *                      UDP header (udp.srcport = <kernel>, udp.dstport = 4342) 
+ *       lisph       -> LISP header  
+ *       packet,iph  -> IP header (ip.src = <this host>, ip.dst = eid) 
+ *       udph        -> UDP (udp.srcport = ANY, udp.dstport = 4342) 
+ *       map_request -> struct map-request 
  *
  *	We'll open a UDP socket on dest port 4341, and 
  *	give it a "packet" that that looks like:
@@ -64,7 +63,7 @@
  *	dmm@1-4-5.net
  *	Thu Apr 16 14:46:51 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.49 2009/09/14 23:02:03 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.50 2009/09/18 00:14:48 dmm Exp dmm $
  *
  */
 
@@ -84,10 +83,13 @@ int send_map_request(s,nonce0,nonce1,before,eid,map_resolver,my_addr)
     struct ip			*iph;
     struct udphdr		*udph;
     struct map_request_pkt	*map_request;
+    unsigned int		lisp_header_nonce;
     int				ip_len = 0;
     int				packet_len = 0;
     int				nbytes = 0;
 
+
+    lisp_header_nonce = (nonce0^nonce1)^random();
 
     if (debug > 2)
 	fprintf(stderr, "send_map_request (inner header): <%s:%d,%s:%d>\n",
@@ -143,7 +145,7 @@ int send_map_request(s,nonce0,nonce1,before,eid,map_resolver,my_addr)
     lisph->l_bit                = 0;
     lisph->e_bit                = 0;
     lisph->rflags               = 0;
-    lisph->lisp_data_nonce      = htonl(nonce0);
+    lisph->lisp_data_nonce      = htonl(lisp_header_nonce);
     lisph->lisp_loc_status_bits = 0;
     /*
      *	Build inner IP header

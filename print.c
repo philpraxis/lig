@@ -35,7 +35,7 @@
  *	Free Software Foundation, Inc., 59 Temple Place - Suite
  *	330, Boston, MA  02111-1307, USA. 
  *
- *	$Header: /home/dmm/lisp/lig/RCS/print.c,v 1.26 2009/09/14 14:27:53 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/print.c,v 1.27 2009/09/21 00:50:53 dmm Exp $
  *
  */
 
@@ -239,8 +239,10 @@ void print_map_reply(map_reply,requested_eid,mr_to,mr_from,elapsed_time)
 	     */
 
 	    for (locator = 0; locator < locator_count; locator++) {
-                set_afi_and_addr_offset(ntohs(loctype->loc_afi), &afi, &addr_offset);
-		if ((formatted_addr = inet_ntop(afi, &loctype->locator, buf, sizeof(buf))) == NULL) {
+                set_afi_and_addr_offset(ntohs(loctype->loc_afi),
+					&afi, &addr_offset);
+		if ((formatted_addr = inet_ntop(afi, &loctype->locator,
+						buf, sizeof(buf))) == NULL) {
 		    perror("inet_ntop");
 		    exit(BAD);
 		}

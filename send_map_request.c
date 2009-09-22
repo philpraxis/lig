@@ -28,7 +28,7 @@
  *	330, Boston, MA  02111-1307, USA. 
  *
  *
- *	 $Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.50 2009/09/18 00:14:48 dmm Exp dmm $ 
+ *	 $Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.52 2009/09/22 12:24:44 dmm Exp $ 
  *
  */
 
@@ -63,7 +63,7 @@
  *	dmm@1-4-5.net
  *	Thu Apr 16 14:46:51 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.50 2009/09/18 00:14:48 dmm Exp dmm $
+ *	$Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.52 2009/09/22 12:24:44 dmm Exp $
  *
  */
 
@@ -220,9 +220,9 @@ int send_map_request(s,nonce0,nonce1,before,eid,map_resolver,my_addr)
     map_request->rloc_probe                  = 0;
     map_request->map_data_present            = 0;
     map_request->auth_bit                    = 0;
-    map_request->lisp_type                   = 1;	/* Map-Request */
+    map_request->lisp_type                   = LISP_MAP_REQUEST;
     map_request->reserved                    = htons(0);
-    map_request->record_count                = LISP_MAP_REQUEST;
+    map_request->record_count                = 1;
     map_request->lisp_nonce0                 = htonl(nonce0); 
     map_request->lisp_nonce1                 = htonl(nonce1); 
     map_request->source_eid_afi              = htons(LISP_AFI_IP);

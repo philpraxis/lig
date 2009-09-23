@@ -27,7 +27,7 @@
  *	Free Software Foundation, Inc., 59 Temple Place - Suite
  *	330, Boston, MA  02111-1307, USA. 
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.82 2009/09/23 21:57:33 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.83 2009/09/23 22:18:10 dmm Exp $
  *
  */
 
@@ -183,7 +183,9 @@ int main(int argc, char *argv[])
     }
 
     if (map_resolver == NULL) {
-	fprintf(stderr, "-m <map resolver> not specified\n");
+        fprintf(stderr,
+		"%s not set and -m not specified\n",
+		DEFAULT_MAP_RESOLVER);
 	fprintf(stderr, USAGE, progname);
 	exit(BAD);
     }

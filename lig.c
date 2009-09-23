@@ -27,7 +27,7 @@
  *	Free Software Foundation, Inc., 59 Temple Place - Suite
  *	330, Boston, MA  02111-1307, USA. 
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.84 2009/09/23 22:25:16 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.85 2009/09/23 22:48:04 dmm Exp $
  *
  */
 
@@ -70,11 +70,11 @@ int main(int argc, char *argv[])
      */
 
     char *eid          = NULL;
-    char *map_resolver = NULL;
     char *src_ip_addr  = NULL;
     char *eid_name     = NULL;
     char *mr_name      = NULL;
     char *progname     = NULL;
+    char *map_resolver = getenv(DEFAULT_MAP_RESOLVER); /* check for env var */
     int  eid_addrtype  = 0;
     int  eid_length    = 0;
     int  mr_addrtype   = 0;
@@ -96,8 +96,6 @@ int main(int argc, char *argv[])
     int	 timeout       = MAP_REPLY_TIMEOUT;
 
     emr_inner_src_port = 0;		
-
-    map_resolver = getenv(DEFAULT_MAP_RESOLVER); /* check for env var */
 
     while ((opt = getopt (argc, argv, optstring)) != EOF) {
 	switch (opt) {

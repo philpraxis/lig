@@ -6,7 +6,7 @@
 #	dmm@1-4-5.net
 #	Mon Jul 20 14:24:33 2009
 #
-#	$Header: /home/dmm/lisp/lig/RCS/README,v 1.4 2009/09/10 21:11:36 dmm Exp $
+#	$Header: /home/dmm/lisp/lig/RCS/README,v 1.5 2009/09/23 21:59:45 dmm Exp $
 #
 
 	
@@ -14,3 +14,5 @@
 		Make lig understand draft-ietf-lisp-04.txt packet
 		formats as well as 64 bit control plane nonces.
 
+09232009:
+		Add the DEFAULT_MAP_RESOLVER environment variable

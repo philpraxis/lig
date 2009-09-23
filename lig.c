@@ -27,7 +27,7 @@
  *	Free Software Foundation, Inc., 59 Temple Place - Suite
  *	330, Boston, MA  02111-1307, USA. 
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.81 2009/09/15 14:56:00 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.82 2009/09/23 21:57:33 dmm Exp $
  *
  */
 
@@ -97,6 +97,8 @@ int main(int argc, char *argv[])
 
     emr_inner_src_port = 0;		
 
+    map_resolver = getenv(DEFAULT_MAP_RESOLVER); /* check for env var */
+
     while ((opt = getopt (argc, argv, optstring)) != EOF) {
 	switch (opt) {
 	case 'c':
@@ -161,7 +163,7 @@ int main(int argc, char *argv[])
     argc -= optind;
     argv += optind;
 
-    if (argc != 1) {
+    if ((argc != 1) && (mr_name == NULL)) {
 	fprintf(stderr, USAGE, progname);
 	exit (BAD);
     }

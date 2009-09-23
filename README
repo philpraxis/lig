@@ -6,7 +6,7 @@
 #	dmm@1-4-5.net
 #	Mon Jul 20 14:24:33 2009
 #
-#	$Header: /home/dmm/lisp/lig/RCS/README,v 1.6 2009/09/23 23:16:12 dmm Exp $
+#	$Header: /home/dmm/lisp/lig/RCS/README,v 1.7 2009/09/23 23:19:14 dmm Exp $
 #
 
 	
@@ -17,7 +17,7 @@
 09232009:
 		Add the DEFAULT_MAP_RESOLVER environment
 		variable. This needs to be the RLOC of a map
-		resolver. The -m flag overrided this environment
+		resolver. The -m flag overrides this environment
 		variable, and you must specify either
 		DEFAULT_MAP_RESOLVER or -m.
 

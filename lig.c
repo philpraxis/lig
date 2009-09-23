@@ -27,7 +27,7 @@
  *	Free Software Foundation, Inc., 59 Temple Place - Suite
  *	330, Boston, MA  02111-1307, USA. 
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.83 2009/09/23 22:18:10 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.84 2009/09/23 22:25:16 dmm Exp $
  *
  */
 
@@ -163,7 +163,7 @@ int main(int argc, char *argv[])
     argc -= optind;
     argv += optind;
 
-    if ((argc != 1) && (mr_name == NULL)) {
+    if (argc != 1) {
 	fprintf(stderr, USAGE, progname);
 	exit (BAD);
     }

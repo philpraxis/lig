@@ -6,7 +6,7 @@
 #	dmm@1-4-5.net
 #	Mon Jul 20 14:24:33 2009
 #
-#	$Header: /home/dmm/lisp/lig/RCS/README,v 1.7 2009/09/23 23:19:14 dmm Exp $
+#	$Header: /home/dmm/lisp/lig/RCS/README,v 1.8 2009/09/29 02:01:50 dmm Exp $
 #
 
 	
@@ -20,6 +20,41 @@
 		resolver. The -m flag overrides this environment
 		variable, and you must specify either
 		DEFAULT_MAP_RESOLVER or -m.
+
+09282009:
+
+		Support draft-ietf-lisp-05.txt. Big change was
+		that control packets are now sent to UDP/4342 and
+		have a encapsulation header. The Encapsulated
+		Control Message has the following format:
+
+/*
+ *	Encapsulated Control Message Format
+ * 
+ *         0                   1                   2                   3
+ *         0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+ *        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *      / |                       IPv4 or IPv6 Header                     |
+ *    OH  |                      (uses RLOC addresses)                    |
+ *      \ |                                                               |
+ *        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *      / |       Source Port = xxxx      |       Dest Port = 4342        |
+ *    UDP +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *      \ |           UDP Length          |        UDP Checksum           |
+ *        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *    LH  |Type=8 |                   Reserved                            |
+ *        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *      / |                       IPv4 or IPv6 Header                     |
+ *    IH  |                  (uses RLOC or EID addresses)                 |
+ *      \ |                                                               |
+ *        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *      / |       Source Port = xxxx      |       Dest Port = yyyy        |
+ *    UDP +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *      \ |           UDP Length          |        UDP Checksum           |
+ *        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *    LCM |                      LISP Control Message                     |
+ *        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ */
 
 
 		

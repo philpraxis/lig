@@ -28,7 +28,7 @@
  *	330, Boston, MA  02111-1307, USA. 
  *
  *
- *	 $Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.52 2009/09/22 12:24:44 dmm Exp $ 
+ *	 $Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.54 2009/09/29 01:59:42 dmm Exp $ 
  *
  */
 
@@ -45,15 +45,15 @@
  *
  *                      IP header (ip.src = <us>, ip.dst = <map-resolver>) 
  *                      UDP header (udp.srcport = <kernel>, udp.dstport = 4342) 
- *       lisph       -> LISP header  
+ *       lcp         -> encapped_control_pkt
  *       packet,iph  -> IP header (ip.src = <this host>, ip.dst = eid) 
  *       udph        -> UDP (udp.srcport = ANY, udp.dstport = 4342) 
  *       map_request -> struct map-request 
  *
- *	We'll open a UDP socket on dest port 4341, and 
+ *	We'll open a UDP socket on dest port 4342, and 
  *	give it a "packet" that that looks like:
  *
- *       lisph -> Outer LISP header
+ *       encapped_control_pkt -> lcp
  *  packet,iph -> IP header (SRC = this host,  DEST = eid)
  *	  udph -> UDP (DEST PORT = 4342)
  * map_request -> struct map-request
@@ -63,7 +63,7 @@
  *	dmm@1-4-5.net
  *	Thu Apr 16 14:46:51 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.52 2009/09/22 12:24:44 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.54 2009/09/29 01:59:42 dmm Exp $
  *
  */
 
@@ -79,7 +79,7 @@ int send_map_request(s,nonce0,nonce1,before,eid,map_resolver,my_addr)
 
     uchar			packet[MAX_IP_PACKET];	
     struct sockaddr_in		mr;
-    struct lisphdr		*lisph;
+    struct lisp_control_pkt	*lcp;
     struct ip			*iph;
     struct udphdr		*udph;
     struct map_request_pkt	*map_request;
@@ -110,8 +110,8 @@ int send_map_request(s,nonce0,nonce1,before,eid,map_resolver,my_addr)
      *	The packet has the following form:
      *
      *	 outer-ip-header		built by the kernel
-     *	 udp-header (4341)		built by the kernel
-     *	 outer lisp-header		struct lisphdr *lisph
+     *	 udp-header (4342)		built by the kernel
+     *	 encapped lisp control packet 	struct  encapped_control_pkt *lcp
      *	 inner-ip-header		struct ip      *iphdr
      *	 udp-header (4342)		struct udphdr  *udphdr
      *   lisp-header (map-request)	struct map_request_pkt *map_request
@@ -125,28 +125,26 @@ int send_map_request(s,nonce0,nonce1,before,eid,map_resolver,my_addr)
      *
      */
 
-    lisph       = (struct lisphdr *)         packet;
-    iph		= (struct ip *)              CO(lisph, sizeof(struct lisphdr));
-    udph        = (struct udphdr *)          CO(iph,   sizeof(struct ip));
-    map_request = (struct map_request_pkt *) CO(udph,  sizeof(struct udphdr));
+    lcp	        = (struct lisp_control_pkt *) packet;
+    iph		= (struct ip *)               CO(lcp,  sizeof(struct lisp_control_pkt));
+    udph        = (struct udphdr *)           CO(iph,  sizeof(struct ip));
+    map_request = (struct map_request_pkt *)  CO(udph, sizeof(struct udphdr));
 
     /*
      *  compute lengths of interest
      */
 
-    ip_len      = sizeof(struct ip) + sizeof(struct udphdr) + sizeof(struct map_request_pkt);
-    packet_len  = ip_len + sizeof(struct lisphdr);
+    ip_len      = sizeof(struct ip) +
+	          sizeof(struct udphdr) +
+	          sizeof(struct map_request_pkt);
+    packet_len  = ip_len + sizeof(struct lisp_control_pkt);
 
     /*
-     *	Build the outer LISP header 
+     *	Tell the Map Resolver its an LISP Encapsulated control packet 
      */
 
-    lisph->n_bit                = 0;
-    lisph->l_bit                = 0;
-    lisph->e_bit                = 0;
-    lisph->rflags               = 0;
-    lisph->lisp_data_nonce      = htonl(lisp_header_nonce);
-    lisph->lisp_loc_status_bits = 0;
+    lcp->type = LISP_ENCAP_CONTROL_TYPE; 
+
     /*
      *	Build inner IP header
      *
@@ -154,15 +152,15 @@ int send_map_request(s,nonce0,nonce1,before,eid,map_resolver,my_addr)
      *
      */
 
-    iph->ip_hl  = 5;
-    iph->ip_v   = 4;
-    iph->ip_tos = 0;
-    iph->ip_len = htons(ip_len);	/* ip + udp headers, + map_request */
-    iph->ip_id  = htons(54321);		/* the value doesn't matter here */
-    iph->ip_off = 0;
-    iph->ip_ttl = 255;
-    iph->ip_p   = IPPROTO_UDP;
-    iph->ip_sum = 0;			/* compute checksum later */
+    iph->ip_hl         = 5;
+    iph->ip_v          = 4;
+    iph->ip_tos        = 0;
+    iph->ip_len        = htons(ip_len);	/* ip + udp headers, + map_request */
+    iph->ip_id         = htons(54321);	/* the value doesn't matter here */
+    iph->ip_off        = 0;
+    iph->ip_ttl        = 255;
+    iph->ip_p          = IPPROTO_UDP;
+    iph->ip_sum        = 0;		/* compute checksum later */
     iph->ip_src.s_addr = my_addr->s_addr;
     iph->ip_dst.s_addr = inet_addr(eid); /* string from command line */
 
@@ -243,7 +241,6 @@ int send_map_request(s,nonce0,nonce1,before,eid,map_resolver,my_addr)
 #endif
 
 #if (DEBUG > 4)
-    print_lisp_header(lisph);
     print_ip_header(iph);
     print_udp_header(udph);
     print_map_request(map_request);
@@ -256,7 +253,7 @@ int send_map_request(s,nonce0,nonce1,before,eid,map_resolver,my_addr)
      *	Kernel puts on:
      *
      *	 IP  (SRC = my_addr, DEST = map_resolver)
-     *   UDP (DEST PORT = 4341)
+     *   UDP (DEST PORT = 4342)
      *
      *	The UDP packet we build (packet) looks like:
      *
@@ -270,7 +267,7 @@ int send_map_request(s,nonce0,nonce1,before,eid,map_resolver,my_addr)
 
     mr.sin_family      = AF_INET;
     mr.sin_addr.s_addr = inet_addr(map_resolver);
-    mr.sin_port        = htons(LISP_DATA_PORT);
+    mr.sin_port        = htons(LISP_CONTROL_PORT);
 
     if (gettimeofday(before,NULL) == -1) {
 	perror("gettimeofday");

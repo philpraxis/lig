@@ -1,0 +1,55 @@
+.\"
+.\"
+.\"     lig.1
+.\"     
+.\"     David Meyer
+.\"     dmm@1-4-5.net
+.\"     Fri Sep 25 10:54:03 PDT 2009
+.\"
+.\"
+.\"     $Header: /home/dmm/lisp/lig/RCS/lig.1,v 1.2 2009/09/29 02:08:51 dmm Exp $
+.\"
+.\"
+.\"
+
+
+.TH lig 1  "September 25, 2009" "Version 0.0" "USER COMMANDS"
+.SH NAME
+lig \- LISP Internet Groper
+.SH SYNOPSIS
+.B lig [-d] <EID> -m <map resolver> [-c <count>] [-p <port>] [-t <timeout>] [-v]
+
+.SH DESCRIPTION
+The LISP Internet Groper (lig) 
+
+.SH OPTIONS
+.TP
+\-d
+display additional debug information
+.TP
+\-m <map resolver>
+Specify the Map Resolver to send the Encapsualted Map Request
+to. The Map Resolver can also be specified by setting the 
+DEFAULT_MAP_RESOLVER enviornment variable to the name (or
+address) of a Map Resolver.
+.TP
+\-c <count>
+Send <count> Map Requests before giving up. The default value is 3.
+.TP
+\-p <port>
+Set the source port of the inner (encapsulated) UDP header.
+.TP
+\-t <timeout>
+Set the time to wait for a Map Reply (in milliseconds).
+.TP
+\-v
+Print the lig version. The version string is of the form XXYYZZ
+where XX is the base specification version, YY is the Map Server
+specification version, and ZZ is the lig code verison. 
+.SH EXAMPLES
+.TP
+.PP
+.SH Source Code
+http://github.com/davidmeyer/lig
+.SH AUTHOR
+David Meyer (dmm at 1-4-5.net)

@@ -25,26 +25,40 @@
 #	Free Software Foundation, Inc., 59 Temple Place - Suite
 #	330, Boston, MA  02111-1307, USA. 
 #
-#	$Header: /home/dmm/lisp/lig/RCS/Makefile,v 1.10 2009/09/14 01:56:11 dmm Exp $
+#	$Header: /home/dmm/lisp/lig/RCS/Makefile,v 1.11 2009/09/29 02:08:14 dmm Exp $
 #
-
 
 SRC      = lig.c send_map_request.c lib.c cksum.c print.c get_my_ip_addr.c
 INC	 = lig.h lig-external.h
 OBJ	 = $(SRC:%.c=%.o)
 EXE      = lig
-
+#
+#	man pages
+#
+#	man is just a target so you can say 'make man'
+MAN	 = man
+MANSRC	 = lig.1
+MANOUT	 = lig.man
+#
+#	misc junk
+#
 RCS      = RCS
 MISC     = Makefile README 
-
+#
+#	compile/load options
+#
 CC	 = gcc
 CFLAGS   = -g -DDEBUG=3
 LDLIBS   = 
 LDFLAGS  = 
-
+#
+#
 ${EXE}: ${OBJ} ${INC} Makefile
 	$(CC) -o $@ ${OBJ} $(LDLIBS) $(LDFLAGS)
 
+${MAN}: ${MANSRC}
+	groff -t -e -mandoc -Tascii ${MANSRC} | col -bx > ${MANOUT}
+
 clean:
-	/bin/rm -f ${OBJ} ${EXE} core a.out Make.log Make.err *~
+	/bin/rm -f ${OBJ} ${EXE} ${MANOUT} core a.out Make.log Make.err *~
 

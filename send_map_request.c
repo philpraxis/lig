@@ -28,7 +28,7 @@
  *	330, Boston, MA  02111-1307, USA. 
  *
  *
- *	 $Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.54 2009/09/29 01:59:42 dmm Exp $ 
+ *	 $Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.55 2009/09/29 02:54:45 dmm Exp $ 
  *
  */
 
@@ -45,7 +45,7 @@
  *
  *                      IP header (ip.src = <us>, ip.dst = <map-resolver>) 
  *                      UDP header (udp.srcport = <kernel>, udp.dstport = 4342) 
- *       lcp         -> encapped_control_pkt
+ *       lcp         -> lisp_control_pkt
  *       packet,iph  -> IP header (ip.src = <this host>, ip.dst = eid) 
  *       udph        -> UDP (udp.srcport = ANY, udp.dstport = 4342) 
  *       map_request -> struct map-request 
@@ -53,7 +53,7 @@
  *	We'll open a UDP socket on dest port 4342, and 
  *	give it a "packet" that that looks like:
  *
- *       encapped_control_pkt -> lcp
+*          lcp -> lisp_control_pkt
  *  packet,iph -> IP header (SRC = this host,  DEST = eid)
  *	  udph -> UDP (DEST PORT = 4342)
  * map_request -> struct map-request
@@ -63,7 +63,7 @@
  *	dmm@1-4-5.net
  *	Thu Apr 16 14:46:51 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.54 2009/09/29 01:59:42 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.55 2009/09/29 02:54:45 dmm Exp $
  *
  */
 
@@ -111,7 +111,7 @@ int send_map_request(s,nonce0,nonce1,before,eid,map_resolver,my_addr)
      *
      *	 outer-ip-header		built by the kernel
      *	 udp-header (4342)		built by the kernel
-     *	 encapped lisp control packet 	struct  encapped_control_pkt *lcp
+     *	 lisp lisp control packet 	struct  lisp_control_pkt *lcp
      *	 inner-ip-header		struct ip      *iphdr
      *	 udp-header (4342)		struct udphdr  *udphdr
      *   lisp-header (map-request)	struct map_request_pkt *map_request
@@ -219,7 +219,7 @@ int send_map_request(s,nonce0,nonce1,before,eid,map_resolver,my_addr)
     map_request->map_data_present            = 0;
     map_request->auth_bit                    = 0;
     map_request->lisp_type                   = LISP_MAP_REQUEST;
-    map_request->reserved                    = htons(0);
+    map_request->reserved                    = 0;
     map_request->record_count                = 1;
     map_request->lisp_nonce0                 = htonl(nonce0); 
     map_request->lisp_nonce1                 = htonl(nonce1); 

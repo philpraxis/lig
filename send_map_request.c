@@ -28,7 +28,7 @@
  *	330, Boston, MA  02111-1307, USA. 
  *
  *
- *	 $Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.55 2009/09/29 02:54:45 dmm Exp $ 
+ *	 $Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.56 2009/10/04 00:08:42 dmm Exp $ 
  *
  */
 
@@ -63,7 +63,7 @@
  *	dmm@1-4-5.net
  *	Thu Apr 16 14:46:51 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.55 2009/09/29 02:54:45 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.56 2009/10/04 00:08:42 dmm Exp $
  *
  */
 
@@ -89,7 +89,7 @@ int send_map_request(s,nonce0,nonce1,before,eid,map_resolver,my_addr)
     int				nbytes = 0;
 
 
-    lisp_header_nonce = (nonce0^nonce1)^random();
+    lisp_header_nonce = LISP_DATA_HEADER_NONCE;
 
     if (debug > 2)
 	fprintf(stderr, "send_map_request (inner header): <%s:%d,%s:%d>\n",

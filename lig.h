@@ -27,7 +27,7 @@
  *	Free Software Foundation, Inc., 59 Temple Place - Suite
  *	330, Boston, MA  02111-1307, USA. 
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig.h,v 1.64 2009/09/29 01:59:42 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig.h,v 1.66 2009/10/04 00:09:46 root Exp $
  *
  */
 
@@ -70,6 +70,7 @@ typedef enum			{FALSE,TRUE} boolean;
 #define	V4EID_PREFIX_LEN        6	/* characters in "153.16" */
 #define	MIN_EPHEMERAL_PORT	32768
 #define	MAX_EPHEMERAL_PORT	65535
+#define	LISP_DATA_HEADER_NONCE	0x1df2df
 
 #define	USAGE	"usage: %s [-d] <eid> -m <map resolver> \
 [-c <count>] [-p <port>] [-t <timeout>] [-v]\n"
@@ -84,7 +85,7 @@ typedef enum			{FALSE,TRUE} boolean;
  *      ZZ is the lig version
  */
 
-#define	VERSION "%s version 04.02.01\n"
+#define	VERSION "%s version 05.04.02\n"
 
 
 /*

@@ -27,7 +27,7 @@
  *	Free Software Foundation, Inc., 59 Temple Place - Suite
  *	330, Boston, MA  02111-1307, USA. 
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.85 2009/09/23 22:48:04 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.86 2009/10/06 23:43:52 dmm Exp $
  *
  */
 
@@ -41,7 +41,6 @@
 int			s;			/* send socket */
 int			r;			/* receive socket */
 int			debug    = 0;
-boolean			no_reply = TRUE;
 unsigned int		*nonce;
 struct   sockaddr_in	map_resolver_addr;
 uchar			packet[MAX_IP_PACKET];
@@ -57,6 +56,7 @@ struct map_reply_pkt	*map_reply;
 
 int main(int argc, char *argv[])
 {
+
     struct hostent	*hostent;
     struct timeval	before;
     struct timeval	after;
@@ -69,19 +69,19 @@ int main(int argc, char *argv[])
      * Remember the requested eid and map resolver properties here 
      */
 
-    char *eid          = NULL;
-    char *src_ip_addr  = NULL;
-    char *eid_name     = NULL;
-    char *mr_name      = NULL;
-    char *progname     = NULL;
-    char *map_resolver = getenv(DEFAULT_MAP_RESOLVER); /* check for env var */
-    int  eid_addrtype  = 0;
-    int  eid_length    = 0;
-    int  mr_addrtype   = 0;
-    int  mr_length     = 0;
+    char *eid		= NULL;
+    char *src_ip_addr	= NULL;
+    char *eid_name	= NULL;
+    char *mr_name	= NULL;
+    char *progname	= NULL;
+    char *map_resolver	= getenv(DEFAULT_MAP_RESOLVER); /* check for env var */
+    int  eid_addrtype	= 0;
+    int  eid_length	= 0;
+    int  mr_addrtype	= 0;
+    int  mr_length	= 0;
 
-    int i = 0;				/* generic counter */
-    unsigned int port  = 0;		/* if -p <port> specified, put it in here to find overflow */
+    int i		= 0;		/* generic counter */
+    unsigned int port	= 0;		/* if -p <port> specified, put it in here to find overflow */
     unsigned int iseed;			/* initial random number generator */
     unsigned int nonce0;
     unsigned int nonce1;   
@@ -103,7 +103,7 @@ int main(int argc, char *argv[])
 	    count = atoi(optarg);
 	    if ((count < MIN_COUNT) || (count > MAX_COUNT)) {
 		fprintf(stderr,
-		  "%s: Invalid number, specify count in the range (%u:%u)\n",
+			"%s: Invalid number, specify count in the range (%u:%u)\n",
 			argv[0], MIN_COUNT,MAX_COUNT);
 		exit(BAD);
 	    }
@@ -331,7 +331,7 @@ int main(int argc, char *argv[])
 
     for (i = 0; i < count; i++) {
 
-	build_nonce(&nonce0,&nonce1);
+        build_nonce(&nonce0,&nonce1);
 	nonce[2*i]     = nonce0;	/* save these for later (find_nonce) */
 	nonce[(2*i)+1] = nonce1;
 
@@ -342,9 +342,7 @@ int main(int argc, char *argv[])
 		   eid_name,
 		   eid);
         else
-	    printf("Send map-request to %s for %s ...\n",
-		   mr_name,
-		   eid_name);
+	    printf("Send map-request to %s for %s ...\n", mr_name, eid_name);
 
 	if (send_map_request(s,
 			     nonce0,
@@ -356,6 +354,7 @@ int main(int argc, char *argv[])
 	    perror("can't send map-request");
 	    exit(BAD);
 	}
+
         if (wait_for_response(r,timeout)) {	
 	    if (gettimeofday(&after,NULL) == -1) {
 		perror("gettimeofday");
@@ -364,8 +363,7 @@ int main(int argc, char *argv[])
 	    get_map_reply(r, packet, &from);
 	    map_reply = (struct map_reply_pkt *) packet;
 	    if (map_reply->lisp_type != LISP_MAP_REPLY) {
-		fprintf(stderr, "Packet not a Map Reply (0x%x)\n",
-			map_reply->lisp_type);
+		fprintf(stderr, "Packet not a Map Reply (0x%x)\n", map_reply->lisp_type);
 		continue;			/* try again */
 	    }
 
@@ -388,15 +386,12 @@ int main(int argc, char *argv[])
 		       ntohl(map_reply->lisp_nonce0),
 		       nonce1,
 		       ntohl(map_reply->lisp_nonce1));
-                no_reply = FALSE;
 		continue;			/* try again if count left */
 	    }
 
-	}
-	/* we timed out */
+	}					/* timed out */
     }
-    if (no_reply)
-	printf("*** No map-reply received ***\n");
+    printf("*** No map-reply received ***\n");
 }
 
 

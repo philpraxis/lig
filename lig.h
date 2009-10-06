@@ -27,7 +27,7 @@
  *	Free Software Foundation, Inc., 59 Temple Place - Suite
  *	330, Boston, MA  02111-1307, USA. 
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig.h,v 1.66 2009/10/04 00:09:46 root Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig.h,v 1.67 2009/10/06 17:16:01 dmm Exp $
  *
  */
 
@@ -243,8 +243,6 @@ struct map_request_pkt {
 
 struct lisphdr { 
 #ifdef __LITTLE_ENDIAN
-    unsigned int lisp_loc_status_bits; 
-    unsigned int lisp_data_nonce:24; 
     unsigned int rflags:5; 
     unsigned int e_bit:1; 
     unsigned int l_bit:1; 
@@ -254,9 +252,9 @@ struct lisphdr {
     unsigned int l_bit:1; 
     unsigned int e_bit:1; 
     unsigned int rflags:5; 
+#endif 
     unsigned int lisp_data_nonce:24; 
     unsigned int lisp_loc_status_bits; 
-#endif 
 } __attribute__ ((__packed__));
  
 

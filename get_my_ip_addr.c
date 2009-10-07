@@ -30,7 +30,7 @@
  *	Free Software Foundation, Inc., 59 Temple Place - Suite
  *	330, Boston, MA  02111-1307, USA. 
  *
- *	$Header: /home/dmm/lisp/lig/RCS/get_my_ip_addr.c,v 1.10 2009/09/14 01:51:46 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/get_my_ip_addr.c,v 1.13 2009/10/07 17:33:15 dmm Exp $
  *
  */
 
@@ -67,50 +67,27 @@ void get_my_ip_addr(my_addr)
      struct     in_addr *my_addr;
 {
 
-    struct ifconf	conf;
-    struct sockaddr_in 	*s_in;
-    int			s, i, count;
+    struct	ifaddrs		*ifaddr;
+    struct	ifaddrs		*ifa;
+    char			*addr; 
+    int				afi;
 
-    /*
-     *  Open dummy socket
-     */
-
-    if ((s = socket(AF_INET, SOCK_DGRAM, 0)) == -1) {
-	perror("error opening socket");
+    if (getifaddrs(&ifaddr) == -1) {
+	perror("getifaddrs");
 	exit(BAD);
     }
 
-    memset(&conf, 0, sizeof(conf));
-    conf.ifc_len = sizeof(struct ifreq) * NINTERFACES;
-
-    if ((conf.ifc_buf = (char*) malloc(conf.ifc_len)) == NULL) {
-	perror ("malloc (NINTERFACES)");
-	exit(BAD);
-    }
-        
-    if (ioctl(s, SIOCGIFCONF, &conf) == -1) {
-	perror("failed to get device list");
-	exit(BAD);
-    }
-
-    count = conf.ifc_len / sizeof(struct ifreq);
-
-    for (i = 0; i < count; i++) {
-	s_in = (struct sockaddr_in*) &conf.ifc_req[i].ifr_addr;
-        if (usable_addr(inet_ntoa(s_in->sin_addr))) {
-
-#if (DEBUG > 3)
-	    fprintf(stderr,
-		    "get_my_ip_addr: using %s (%s)\n", 
-		    inet_ntoa(s_in->sin_addr),
-		    conf.ifc_req[i].ifr_name);
-#endif
-
-            memcpy((void *) my_addr, (void *) &(s_in->sin_addr),
-		   sizeof(struct in_addr));
-            free(conf.ifc_buf);
-	    close(s);
-	    return;
+    for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next) {
+	afi = ifa->ifa_addr->sa_family;
+	if (afi == AF_INET) {
+	    addr = inet_ntoa(((struct sockaddr_in *)(ifa->ifa_addr))->sin_addr);
+	    if (usable_addr(addr)) {
+		if (debug)
+		    printf("Using source address %s...\n", addr);
+		memcpy((void *) my_addr, (void *) &((struct sockaddr_in *)(ifa->ifa_addr))->sin_addr,
+		       sizeof(struct in_addr));
+		return;
+	    }
 	}
     }
     fprintf(stderr, "No usable source address\n");

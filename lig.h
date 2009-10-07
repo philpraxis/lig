@@ -27,7 +27,7 @@
  *	Free Software Foundation, Inc., 59 Temple Place - Suite
  *	330, Boston, MA  02111-1307, USA. 
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig.h,v 1.67 2009/10/06 17:16:01 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig.h,v 1.68 2009/10/07 17:24:52 dmm Exp $
  *
  */
 
@@ -38,6 +38,7 @@
 #include	<errno.h>
 #include	<ctype.h>
 #include        <netdb.h>
+#include	<ifaddrs.h>
 #include	<strings.h>
 #include	<sys/types.h>
 #include	<sys/param.h>

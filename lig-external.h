@@ -25,21 +25,20 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig-external.h,v 1.14 2009/09/14 01:51:46 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig-external.h,v 1.16 2009/10/07 17:36:00 dmm Exp $
  *
  */
 
-extern	struct protoent *proto;
-extern	int optind;
-extern  int debug;
-extern	ushort emr_inner_src_port;
+extern	struct protoent	*proto;
+extern	int		optind;
+extern  int		debug;
+extern	ushort		emr_inner_src_port;
 
-extern void   *memcpy();
-extern void   *memset();
-extern char   *strdup();
-extern size_t  strlen();
+extern void		*memcpy();
+extern void		*memset();
+extern char		*strdup();
 
-extern ushort       csum ();
-extern void         get_my_ip_addr();
-extern void	    get_map_reply();
-extern long         tvdiff();
+extern ushort		csum ();
+extern void		get_my_ip_addr();
+extern void		get_map_reply();
+extern long		tvdiff();

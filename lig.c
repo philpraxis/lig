@@ -27,7 +27,7 @@
  *	Free Software Foundation, Inc., 59 Temple Place - Suite
  *	330, Boston, MA  02111-1307, USA. 
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.86 2009/10/06 23:43:52 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.88 2009/10/07 21:15:08 dmm Exp $
  *
  */
 
@@ -138,7 +138,6 @@ int main(int argc, char *argv[])
 			argv[0], MIN_MR_TIMEOUT,MAX_MR_TIMEOUT);
 		exit(BAD);
 	    }
-	    timeout = timeout*1000;		/* convert to ms */
 	    break;
 	case 'v':
 	    fprintf(stderr, VERSION, argv[0]);
@@ -265,19 +264,6 @@ int main(int argc, char *argv[])
 	perror("SOCK_DGRAM (r)");
 	exit(1);
     }
-
-    /*
-     *	get my ip_address
-     *
-     *	Don't love get_my_ip_addr. It loops through
-     *	the interfaces in a way that is probably not 
-     *  POSIX compliant (SIOCGIFCONF), and looks for
-     *	an IP address that isn't a looback (127.0.0.1)
-     *  or an EID (153.16/16).
-     *
-     *	Also doesn't return IPv6 addresses.
-     *
-     */
 
     if (src_ip_addr) 
 	my_addr.s_addr = inet_addr(src_ip_addr); 

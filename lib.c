@@ -27,7 +27,7 @@
  *	Free Software Foundation, Inc., 59 Temple Place - Suite
  *	330, Boston, MA  02111-1307, USA. 
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lib.c,v 1.41 2009/09/18 02:28:45 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lib.c,v 1.42 2009/10/07 21:15:08 dmm Exp $
  *
  */
 
@@ -72,8 +72,8 @@ wait_for_response(s,timeout)
     struct timeval tv;
     fd_set         readfds;
 
-    tv.tv_sec  = 0;
-    tv.tv_usec = timeout*1000;		/* timeout is in ms */
+    tv.tv_sec  = timeout;
+    tv.tv_usec = 0;
 
     FD_ZERO(&readfds);
     FD_SET(s,&readfds);

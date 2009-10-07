@@ -25,7 +25,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig-external.h,v 1.16 2009/10/07 17:36:00 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig-external.h,v 1.17 2009/10/07 18:55:57 dmm Exp $
  *
  */
 
@@ -34,9 +34,11 @@ extern	int		optind;
 extern  int		debug;
 extern	ushort		emr_inner_src_port;
 
+#if !defined(BSD)
 extern void		*memcpy();
 extern void		*memset();
 extern char		*strdup();
+#endif
 
 extern ushort		csum ();
 extern void		get_my_ip_addr();

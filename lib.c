@@ -27,7 +27,7 @@
  *	Free Software Foundation, Inc., 59 Temple Place - Suite
  *	330, Boston, MA  02111-1307, USA. 
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lib.c,v 1.42 2009/10/07 21:15:08 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lib.c,v 1.42 2009/10/07 21:15:08 dmm Exp dmm $
  *
  */
 
@@ -90,18 +90,12 @@ wait_for_response(s,timeout)
 
 /*
  *	Retrieve a map-reply from socket r
- *
- *	Since we currently have to receive on a raw socket, peek the 
- *	packet and only read it if its actually a map-reply (i.e., has
- *	source 4342.
- *
  */
 
-void get_map_reply(r,packet, from)
+get_map_reply(r,packet, from)
 	int			r;
 	uchar			*packet;
 	struct sockaddr_in	*from;
-
 {
 
     int fromlen = sizeof(struct sockaddr_in);
@@ -122,6 +116,14 @@ void get_map_reply(r,packet, from)
 	printf("Received packet from <%s:%d>\n",
 	       inet_ntoa(from->sin_addr),
 	       ntohs(from->sin_port));
+
+    if (((struct map_reply_pkt *) packet)->lisp_type != LISP_MAP_REPLY) {
+	fprintf(stderr, "Packet not a Map Reply (0x%x)\n",
+		((struct map_reply_pkt *) packet)->lisp_type);
+	return(BAD);
+    }
+
+    return(GOOD);
 }
 
 

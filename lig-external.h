@@ -25,7 +25,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig-external.h,v 1.17 2009/10/07 18:55:57 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig-external.h,v 1.17 2009/10/07 18:55:57 dmm Exp dmm $
  *
  */
 
@@ -42,5 +42,4 @@ extern char		*strdup();
 
 extern ushort		csum ();
 extern void		get_my_ip_addr();
-extern void		get_map_reply();
 extern long		tvdiff();

@@ -27,7 +27,7 @@
  *	Free Software Foundation, Inc., 59 Temple Place - Suite
  *	330, Boston, MA  02111-1307, USA. 
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.91 2009/10/09 16:23:02 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.92 2009/10/09 19:54:48 dmm Exp dmm $
  *
  */
 
@@ -40,10 +40,11 @@
 
 int			s;			/* send socket */
 int			r;			/* receive socket */
+
 unsigned int		*nonce;
+int			debug = 0;
 struct   sockaddr_in	map_resolver_addr;
 uchar			packet[MAX_IP_PACKET];
-int  debug		= 0;
 
 /*
  *	use these to construct and parse packets
@@ -82,9 +83,9 @@ int main(int argc, char *argv[])
 
     int i		= 0;		/* generic counter */
     unsigned int port	= 0;		/* if -p <port> specified, put it in here to find overflow */
-    unsigned int iseed;			/* initial random number generator */
-    unsigned int nonce0;
-    unsigned int nonce1;   
+    unsigned int iseed  = 0;		/* initial random number generator */
+    unsigned int nonce0 = 0;
+    unsigned int nonce1 = 0;   
 
     /*
      *	parse args
@@ -131,7 +132,7 @@ int main(int argc, char *argv[])
 	    }
 	    break;
 	case 't':
-	    timeout = atoi(optarg);		/* seconds */
+	    timeout = atoi(optarg);
 	    if ((timeout < MIN_MR_TIMEOUT) || (timeout > MAX_MR_TIMEOUT)) {
 		fprintf(stderr,
 			"%s: Invalid number, specify timeout in the range (%u:%u) seconds\n",
@@ -349,18 +350,11 @@ int main(int argc, char *argv[])
 		perror("gettimeofday");
 		return(BAD);
 	    }
-	    get_map_reply(r, packet, &from);
-	    map_reply = (struct map_reply_pkt *) packet;
-	    if (map_reply->lisp_type != LISP_MAP_REPLY) {
-		fprintf(stderr, "Packet not a Map Reply (0x%x)\n", map_reply->lisp_type);
-		continue;			/* try again */
-	    }
 
-	    /*
-             * Ok, its a map-reply, now check to see if we can find
-	     * the nonce
-             *
-             */
+	    if (get_map_reply(r, packet, &from))
+		continue;
+
+	    map_reply = (struct map_reply_pkt *) packet;
 
 	    if (find_nonce(map_reply,nonce, (i+1))) {
 		print_map_reply(map_reply,

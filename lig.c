@@ -27,7 +27,7 @@
  *	Free Software Foundation, Inc., 59 Temple Place - Suite
  *	330, Boston, MA  02111-1307, USA. 
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.94 2009/10/09 20:22:41 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.96 2009/10/09 20:40:46 dmm Exp $
  *
  */
 
@@ -166,14 +166,14 @@ int main(int argc, char *argv[])
 	exit (BAD);
     }
 
+    /* 
+     *	The requested eid should be in argv[0]
+     */
+
     if ((eid = strdup(argv[0])) == NULL) {
 	perror ("strdup(argv[0])");
 	exit(BAD);
     }
-	
-    /* 
-     *	The requested eid should be here
-     */
 
     if ((eid_name = strdup(eid)) == NULL) {
 	perror ("strdup(eid)");
@@ -238,18 +238,6 @@ int main(int argc, char *argv[])
 	perror ("malloc (nonce)");
 	exit(BAD);
     }
-
-    /*
-     *	Get a couple of UDP sockets. Can't send and receive on the
-     *	same socket since you encapsulate to the port LISP_DATA_PORT
-     *	(4341) and receive on emr_inner_src_port (and source port
-     *	LISP_CONTROL_PORT (4342)).
-     *
-     *	So send a encapsulated map-request (EMR) on socket s with dest
-     *	UDP port LISP_DATA_PORT and receive map-replies on socket r on
-     *	emr_inner_src_port (and source port LISP_CONTROL_PORT (4342)).
-     *	
-     */
 
     if ((proto = getprotobyname("UDP")) == NULL) {
 	perror ("getprotobyname");
@@ -322,7 +310,7 @@ int main(int argc, char *argv[])
     for (i = 0; i < count; i++) {
 
         build_nonce(&nonce0,&nonce1);
-	nonce[2*i]     = nonce0;	/* save these for later (find_nonce) */
+	nonce[2*i]     = nonce0;
 	nonce[(2*i)+1] = nonce1;
 
 	if (debug)
@@ -341,7 +329,7 @@ int main(int argc, char *argv[])
 			     eid,
 			     map_resolver,
 			     &my_addr)) {
-	    perror("can't send map-request");
+	    fprintf(stderr, "send_map_request: can't send map-request\n");
 	    exit(BAD);
 	}
 

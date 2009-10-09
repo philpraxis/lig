@@ -25,7 +25,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig-external.h,v 1.17 2009/10/07 18:55:57 dmm Exp dmm $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig-external.h,v 1.18 2009/10/09 20:10:11 dmm Exp $
  *
  */
 

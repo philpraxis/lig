@@ -27,7 +27,7 @@
  *	Free Software Foundation, Inc., 59 Temple Place - Suite
  *	330, Boston, MA  02111-1307, USA. 
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lib.c,v 1.42 2009/10/07 21:15:08 dmm Exp dmm $
+ *	$Header: /home/dmm/lisp/lig/RCS/lib.c,v 1.44 2009/10/09 20:22:41 dmm Exp $
  *
  */
 
@@ -112,18 +112,13 @@ get_map_reply(r,packet, from)
 	exit(BAD);
     }
  
-    if (debug > 2)
-	printf("Received packet from <%s:%d>\n",
-	       inet_ntoa(from->sin_addr),
-	       ntohs(from->sin_port));
+    if (((struct map_reply_pkt *) packet)->lisp_type == LISP_MAP_REPLY)
+	return(1);
+    
+    if (debug)
+	printf("Packet not a Map Reply (0x%x)\n", ((struct map_reply_pkt *) packet)->lisp_type);
 
-    if (((struct map_reply_pkt *) packet)->lisp_type != LISP_MAP_REPLY) {
-	fprintf(stderr, "Packet not a Map Reply (0x%x)\n",
-		((struct map_reply_pkt *) packet)->lisp_type);
-	return(BAD);
-    }
-
-    return(GOOD);
+    return(0);
 }
 
 

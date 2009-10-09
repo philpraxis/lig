@@ -27,7 +27,7 @@
  *	Free Software Foundation, Inc., 59 Temple Place - Suite
  *	330, Boston, MA  02111-1307, USA. 
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.92 2009/10/09 19:54:48 dmm Exp dmm $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.94 2009/10/09 20:22:41 dmm Exp $
  *
  */
 
@@ -351,7 +351,7 @@ int main(int argc, char *argv[])
 		return(BAD);
 	    }
 
-	    if (get_map_reply(r, packet, &from))
+	    if (!get_map_reply(r, packet, &from))
 		continue;
 
 	    map_reply = (struct map_reply_pkt *) packet;

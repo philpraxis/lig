@@ -27,7 +27,7 @@
  *	Free Software Foundation, Inc., 59 Temple Place - Suite
  *	330, Boston, MA  02111-1307, USA. 
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.96 2009/10/09 20:40:46 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.97 2009/10/09 20:45:29 dmm Exp $
  *
  */
 
@@ -269,15 +269,6 @@ int main(int argc, char *argv[])
     iseed = (unsigned int) time (NULL);
     srandom(iseed);
 
-    /* 
-     *	Set up to receive a map-reply.
-     *
-     *	Use this for the source port on the innner UDP header, and for
-     *  the dest port when receiving a map-reply. Bind to this 
-     *  port to the receive socket.
-     *
-     */
-
     memset(packet,       0, MAX_IP_PACKET);
     memset((char *) &me, 0, sizeof(me));
 
@@ -297,15 +288,6 @@ int main(int argc, char *argv[])
 	perror("bind");
 	exit(BAD);
     }
-
-    /*
-     *	loop until either we get a map-reply or we 
-     *	try count times
-     * 
-     *  09/10/2009: nonce is now 64 bits, so we have 
-     *              2*count unsigned ints in the nonce array.
-     *
-     */
 
     for (i = 0; i < count; i++) {
 
@@ -340,7 +322,7 @@ int main(int argc, char *argv[])
 	    }
 
 	    if (!get_map_reply(r, packet, &from))
-		continue;
+		continue;			/* try again if count left */
 
 	    map_reply = (struct map_reply_pkt *) packet;
 

@@ -27,7 +27,7 @@
  *	Free Software Foundation, Inc., 59 Temple Place - Suite
  *	330, Boston, MA  02111-1307, USA. 
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.97 2009/10/09 20:45:29 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.98 2009/10/09 20:52:16 dmm Exp $
  *
  */
 
@@ -41,9 +41,10 @@
 int			s;			/* send socket */
 int			r;			/* receive socket */
 
+
 unsigned int		*nonce;
 int			debug = 0;
-struct   sockaddr_in	map_resolver_addr;
+struct sockaddr_in	map_resolver_addr;
 uchar			packet[MAX_IP_PACKET];
 
 /*
@@ -62,8 +63,8 @@ int main(int argc, char *argv[])
     struct timeval	before;
     struct timeval	after;
     struct protoent	*proto;
-    struct sockaddr_in	 me;
-    struct sockaddr_in	 from;
+    struct sockaddr_in	me;
+    struct sockaddr_in	from;
     struct in_addr	my_addr; 
 
     /*
@@ -86,6 +87,14 @@ int main(int argc, char *argv[])
     unsigned int iseed  = 0;		/* initial random number generator */
     unsigned int nonce0 = 0;
     unsigned int nonce1 = 0;   
+    emr_inner_src_port	= 0;		
+
+    /*
+     *	Get defaults
+     */
+
+    int  count		= COUNT;
+    int	 timeout	= MAP_REPLY_TIMEOUT;
 
     /*
      *	parse args
@@ -93,10 +102,6 @@ int main(int argc, char *argv[])
 
     int  opt		= 0;
     char *optstring	= "c:dm:p:t:s:v";
-
-    int  count		= COUNT;
-    int	 timeout	= MAP_REPLY_TIMEOUT;
-    emr_inner_src_port	= 0;		
 
     while ((opt = getopt (argc, argv, optstring)) != -1) {
 	switch (opt) {
@@ -269,9 +274,6 @@ int main(int argc, char *argv[])
     iseed = (unsigned int) time (NULL);
     srandom(iseed);
 
-    memset(packet,       0, MAX_IP_PACKET);
-    memset((char *) &me, 0, sizeof(me));
-
     /*
      * http://tools.ietf.org/html/draft-larsen-tsvwg-port-randomization-02.txt
      */
@@ -279,6 +281,9 @@ int main(int argc, char *argv[])
     if (!emr_inner_src_port)
 	emr_inner_src_port = MIN_EPHEMERAL_PORT +
 	    random() % (MAX_EPHEMERAL_PORT - MIN_EPHEMERAL_PORT);
+
+    memset(packet,       0, MAX_IP_PACKET);
+    memset((char *) &me, 0, sizeof(me));
 
     me.sin_port        = htons(emr_inner_src_port); 
     me.sin_family      = AF_INET;

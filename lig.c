@@ -27,7 +27,7 @@
  *	Free Software Foundation, Inc., 59 Temple Place - Suite
  *	330, Boston, MA  02111-1307, USA. 
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.98 2009/10/09 20:52:16 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.99 2009/10/09 21:16:05 dmm Exp $
  *
  */
 
@@ -296,9 +296,7 @@ int main(int argc, char *argv[])
 
     for (i = 0; i < count; i++) {
 
-        build_nonce(&nonce0,&nonce1);
-	nonce[2*i]     = nonce0;
-	nonce[(2*i)+1] = nonce1;
+        build_nonce(nonce,i,&nonce0,&nonce1);
 
 	if (debug)
 	    printf("Send map-request to %s (%s) for %s (%s) ...\n",

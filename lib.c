@@ -27,7 +27,7 @@
  *	Free Software Foundation, Inc., 59 Temple Place - Suite
  *	330, Boston, MA  02111-1307, USA. 
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lib.c,v 1.44 2009/10/09 20:22:41 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lib.c,v 1.45 2009/10/09 21:16:05 dmm Exp $
  *
  */
 
@@ -125,18 +125,20 @@ get_map_reply(r,packet, from)
 /*
  *	build_nonce 
  *
- *	Build 64 bit nonce per draft-ietf-lisp-04.txt and RFC 4086. 
+ *	Build and save 64 bit nonce per draft-ietf-lisp-04.txt and RFC 4086.  
  *
  *	Use a simple algorithm (see below).
  *
  */
 
-void build_nonce(nonce0,nonce1)
+void build_nonce(nonce,i,nonce0,nonce1)
+     unsigned int	*nonce;
+     int		i;
      unsigned int	*nonce0;
      unsigned int	*nonce1;
 {
-    *nonce0 = random()^random();
-    *nonce1 = random()^time(NULL);
+    nonce[2*i]     = *nonce0 = random()^random();
+    nonce[(2*i)+1] = *nonce1 = random()^time(NULL);
 }
 
 

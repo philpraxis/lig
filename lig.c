@@ -27,7 +27,7 @@
  *	Free Software Foundation, Inc., 59 Temple Place - Suite
  *	330, Boston, MA  02111-1307, USA. 
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.88 2009/10/07 21:15:08 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.91 2009/10/09 16:23:02 dmm Exp $
  *
  */
 
@@ -40,10 +40,10 @@
 
 int			s;			/* send socket */
 int			r;			/* receive socket */
-int			debug    = 0;
 unsigned int		*nonce;
 struct   sockaddr_in	map_resolver_addr;
 uchar			packet[MAX_IP_PACKET];
+int  debug		= 0;
 
 /*
  *	use these to construct and parse packets
@@ -90,14 +90,14 @@ int main(int argc, char *argv[])
      *	parse args
      */  
 
-    int  opt           = 0;
-    char *optstring    = "c:dm:p:t:s:v";
-    int  count         = COUNT;
-    int	 timeout       = MAP_REPLY_TIMEOUT;
+    int  opt		= 0;
+    char *optstring	= "c:dm:p:t:s:v";
 
-    emr_inner_src_port = 0;		
+    int  count		= COUNT;
+    int	 timeout	= MAP_REPLY_TIMEOUT;
+    emr_inner_src_port	= 0;		
 
-    while ((opt = getopt (argc, argv, optstring)) != EOF) {
+    while ((opt = getopt (argc, argv, optstring)) != -1) {
 	switch (opt) {
 	case 'c':
 	    count = atoi(optarg);
@@ -269,6 +269,9 @@ int main(int argc, char *argv[])
 	my_addr.s_addr = inet_addr(src_ip_addr); 
     else 
 	get_my_ip_addr(&my_addr); 
+
+    if (debug)
+        printf("Using source address %s...\n", inet_ntoa(my_addr));
 
     /* 
      *	Initialize the random number generator for the nonces

@@ -30,7 +30,7 @@
  *	Free Software Foundation, Inc., 59 Temple Place - Suite
  *	330, Boston, MA  02111-1307, USA. 
  *
- *	$Header: /home/dmm/lisp/lig/RCS/get_my_ip_addr.c,v 1.13 2009/10/07 17:33:15 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/get_my_ip_addr.c,v 1.15 2009/10/09 16:23:02 dmm Exp $
  *
  */
 
@@ -82,8 +82,6 @@ void get_my_ip_addr(my_addr)
 	if (afi == AF_INET) {
 	    addr = inet_ntoa(((struct sockaddr_in *)(ifa->ifa_addr))->sin_addr);
 	    if (usable_addr(addr)) {
-		if (debug)
-		    printf("Using source address %s...\n", addr);
 		memcpy((void *) my_addr, (void *) &((struct sockaddr_in *)(ifa->ifa_addr))->sin_addr,
 		       sizeof(struct in_addr));
 		return;
@@ -95,41 +93,3 @@ void get_my_ip_addr(my_addr)
 }
 
 
-/*
- *	don't like this...
- */
-
-#ifdef notdef
-/*
- *	get my own IP address
- *
- *	Fails if /etc/hosts has an entry like
- *
- *	127.0.0.1	<whatever your hostname is>
- *
- */
-
-void get_my_ip_addr(my_addr) 
-     struct     in_addr *my_addr;
-
-{
-    char                hostname[128] = "";
-    struct hostent      *hostent = 0;
-    struct in_addr      **hostptr;
-    struct in_addr      *host;
-
-    if ((gethostname(hostname, sizeof(hostname))) < 0) {
-        perror("gethostname");
-        exit(BAD);
-    }
-
-    if ((hostent = gethostbyname(hostname)) < 0) {
-	perror("gethostbyname");
-	exit(BAD);
-    }
-    hostptr = (struct in_addr **)hostent->h_addr_list;
-    host = hostptr[0];
-    memcpy((void *) my_addr, (void *) host, sizeof(struct in_addr));
-}
-
-#endif

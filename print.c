@@ -35,33 +35,12 @@
  *	Free Software Foundation, Inc., 59 Temple Place - Suite
  *	330, Boston, MA  02111-1307, USA. 
  *
- *	$Header: /home/dmm/lisp/lig/RCS/print.c,v 1.27 2009/09/21 00:50:53 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/print.c,v 1.28 2009/10/12 23:43:15 dmm Exp $
  *
  */
 
 #include	"lig.h"
 #include	"lig-external.h"
-
-/*
- *	Print an LISP header
- *
- *
- */
-
-void print_lisp_header(lisphdr) 
-     struct lisphdr *lisphdr;
-{
-    printf("\nLISP Header\n");
-    printf("=========\n");
-    printf("lisphdr->n_bit  = %d\n", lisphdr->n_bit);
-    printf("lisphdr->l_bit  = %d\n", lisphdr->l_bit);
-    printf("lisphdr->e_bit  = %d\n", lisphdr->e_bit);
-    printf("lisphdr->rflags = 0x%x\n", lisphdr->rflags); 
-    printf("lisphdr->lisp_loc_status_bits\t= %d\n",
-	   lisphdr->lisp_loc_status_bits);
-    printf("lisphdr->lisp_data_nonce\t\t\t= 0x%x\n",
-	   ntohl(lisphdr->lisp_data_nonce));
-}
 
 /*
  *	Print an IP header
@@ -110,7 +89,6 @@ void print_udp_header(udph)
     printf("udph->check\t= 0x%x\n",  udph->check);
 #endif
 }
-
 
 /*
  *	print_negative_cache_entry

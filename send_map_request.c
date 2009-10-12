@@ -28,7 +28,7 @@
  *	330, Boston, MA  02111-1307, USA. 
  *
  *
- *	 $Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.56 2009/10/04 00:08:42 dmm Exp $ 
+ *	 $Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.59 2009/10/12 23:45:17 dmm Exp $ 
  *
  */
 
@@ -63,7 +63,7 @@
  *	dmm@1-4-5.net
  *	Thu Apr 16 14:46:51 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.56 2009/10/04 00:08:42 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.59 2009/10/12 23:45:17 dmm Exp $
  *
  */
 
@@ -77,19 +77,17 @@ int send_map_request(s,nonce0,nonce1,before,eid,map_resolver,my_addr)
      struct in_addr	*my_addr; 
 {
 
+    unsigned int		ip_len		   = 0;
+    unsigned int		udp_len		   = 0;
+    unsigned int		packet_len	   = 0;
+    unsigned int		nbytes		   = 0;
+
     uchar			packet[MAX_IP_PACKET];	
     struct sockaddr_in		mr;
     struct lisp_control_pkt	*lcp;
     struct ip			*iph;
     struct udphdr		*udph;
     struct map_request_pkt	*map_request;
-    unsigned int		lisp_header_nonce;
-    int				ip_len = 0;
-    int				packet_len = 0;
-    int				nbytes = 0;
-
-
-    lisp_header_nonce = LISP_DATA_HEADER_NONCE;
 
     if (debug > 2)
 	fprintf(stderr, "send_map_request (inner header): <%s:%d,%s:%d>\n",
@@ -134,10 +132,9 @@ int send_map_request(s,nonce0,nonce1,before,eid,map_resolver,my_addr)
      *  compute lengths of interest
      */
 
-    ip_len      = sizeof(struct ip) +
-	          sizeof(struct udphdr) +
-	          sizeof(struct map_request_pkt);
-    packet_len  = ip_len + sizeof(struct lisp_control_pkt);
+    udp_len	= sizeof(struct udphdr) + sizeof(struct map_request_pkt);
+    ip_len	= udp_len		+ sizeof(struct ip);
+    packet_len  = ip_len                + sizeof(struct lisp_control_pkt);
 
     /*
      *	Tell the Map Resolver its an LISP Encapsulated control packet 
@@ -170,18 +167,18 @@ int send_map_request(s,nonce0,nonce1,before,eid,map_resolver,my_addr)
      *   DEST Port is 4342 (LISP Control)
      */
 
+
 #ifdef BSD
     udph->uh_sport = htons(emr_inner_src_port);
     udph->uh_dport = htons(LISP_CONTROL_PORT);
-    udph->uh_ulen  = htons(sizeof(struct udphdr) + sizeof(struct map_request_pkt));
+    udph->uh_ulen  = htons(udp_len);
     udph->uh_sum   = 0;
 #else
     udph->source = htons(emr_inner_src_port);
     udph->dest   = htons(LISP_CONTROL_PORT);
-    udph->len    = htons(sizeof(struct udphdr) + sizeof(struct map_request_pkt));
+    udph->len    = htons(udp_len);
     udph->check  = 0;
 #endif
-
 
     /* 
      *	Build the Map-Request
@@ -232,18 +229,18 @@ int send_map_request(s,nonce0,nonce1,before,eid,map_resolver,my_addr)
     map_request->eid_prefix_afi              = htons(LISP_AFI_IP);
     map_request->eid_mask_len		     = LISP_IP_MASK_LEN;
 
-    iph->ip_sum = csum (packet, ip_len);	/* ok, compute checksum now */
+    iph->ip_sum				     = ip_checksum(packet, ip_len);
 
 #ifdef BSD
-    udph->uh_sum  = 0;				/* still needs to be done */
+    udph->uh_sum			     = udp_checksum(udph,
+							    udp_len,
+							    iph->ip_src.s_addr,
+							    iph->ip_dst.s_addr);
 #else
-    udph->check   = 0;				/* still needs to be done */
-#endif
-
-#if (DEBUG > 4)
-    print_ip_header(iph);
-    print_udp_header(udph);
-    print_map_request(map_request);
+    udph->check				     = udp_checksum(udph,
+							    udp_len,
+							    iph->ip_src.s_addr,
+							    iph->ip_dst.s_addr);
 #endif
 
 

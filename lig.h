@@ -27,7 +27,7 @@
  *	Free Software Foundation, Inc., 59 Temple Place - Suite
  *	330, Boston, MA  02111-1307, USA. 
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig.h,v 1.71 2009/10/07 22:51:09 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig.h,v 1.72 2009/10/12 23:43:15 dmm Exp $
  *
  */
 
@@ -64,14 +64,12 @@ typedef enum			{FALSE,TRUE} boolean;
 #define MAP_REPLY_TIMEOUT	2	/* seconds */
 #define	MIN_MR_TIMEOUT		1	/* seconds */
 #define	MAX_MR_TIMEOUT		5	/* seconds */
-#define	NINTERFACES		10
 #define	DEFAULT_MAP_RESOLVER	"DEFAULT_MAP_RESOLVER"
 #define	LOOPBACK		"127.0.0.1"
 #define	V4EID		        "153.16"
 #define	V4EID_PREFIX_LEN        6	/* characters in "153.16" */
 #define	MIN_EPHEMERAL_PORT	32768
 #define	MAX_EPHEMERAL_PORT	65535
-#define	LISP_DATA_HEADER_NONCE	0x1df2df
 
 #define	USAGE	"usage: %s [-d] [-m <map resolver>] [-s <source address>] \
 [-c <count>] [-p <port>] [-t <timeout>] [-v] <EID>\n"
@@ -86,7 +84,7 @@ typedef enum			{FALSE,TRUE} boolean;
  *      ZZ is the lig version
  */
 
-#define	VERSION "%s version 05.04.02\n"
+#define	VERSION "%s version 05.04.04\n"
 
 
 /*
@@ -110,7 +108,6 @@ typedef enum			{FALSE,TRUE} boolean;
 #define	LISP_MAP_REGISTER	3
 #define LISP_ENCAP_CONTROL_TYPE 8
 #define	LISP_CONTROL_PORT	4342
-#define	LISP_DATA_PORT		4341
 
 /*
  *	Map Reply action codes
@@ -230,34 +227,6 @@ struct map_request_pkt {
 
 
 
-
-/* 
- * LISP data header. But also the fixed header for control packets. 
- * 
- *       +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ 
- *   L   |N|L|E|  rflags |                 Nonce                         | 
- *   I \ +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ 
- *   S / |                       Locator Status Bits                     | 
- *   P   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ 
- * 
- */ 
-
-struct lisphdr { 
-#ifdef __LITTLE_ENDIAN
-    unsigned int rflags:5; 
-    unsigned int e_bit:1; 
-    unsigned int l_bit:1; 
-    unsigned int n_bit:1; 
-#else 
-    unsigned int n_bit:1; 
-    unsigned int l_bit:1; 
-    unsigned int e_bit:1; 
-    unsigned int rflags:5; 
-#endif 
-    unsigned int lisp_data_nonce:24; 
-    unsigned int lisp_loc_status_bits; 
-} __attribute__ ((__packed__));
- 
 
 /* 
  *	Map-Reply Message Format 

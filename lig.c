@@ -27,7 +27,7 @@
  *	Free Software Foundation, Inc., 59 Temple Place - Suite
  *	330, Boston, MA  02111-1307, USA. 
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.99 2009/10/09 21:16:05 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.100 2009/10/12 23:43:15 dmm Exp $
  *
  */
 
@@ -53,7 +53,6 @@ uchar			packet[MAX_IP_PACKET];
 
 struct ip		*iph;
 struct udphdr		*udph;
-struct lisphdr		*lisph;
 struct map_reply_pkt	*map_reply;
 
 int main(int argc, char *argv[])

@@ -28,7 +28,7 @@
  *	330, Boston, MA  02111-1307, USA. 
  *
  *
- *	 $Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.60 2009/10/13 00:38:57 dmm Exp $ 
+ *	 $Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.61 2009/10/13 23:35:40 dmm Exp $ 
  *
  */
 
@@ -63,7 +63,7 @@
  *	dmm@1-4-5.net
  *	Thu Apr 16 14:46:51 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.60 2009/10/13 00:38:57 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.61 2009/10/13 23:35:40 dmm Exp $
  *
  */
 
@@ -210,7 +210,6 @@ int send_map_request(s,nonce0,nonce1,before,eid,map_resolver,my_addr)
      *     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ 
      */ 
 
-
     map_request->smr_bit                     = 0;
     map_request->rloc_probe                  = 0;
     map_request->map_data_present            = 0;
@@ -222,7 +221,7 @@ int send_map_request(s,nonce0,nonce1,before,eid,map_resolver,my_addr)
     map_request->lisp_nonce1                 = htonl(nonce1); 
     map_request->source_eid_afi              = htons(LISP_AFI_IP);
     map_request->itr_afi                     = htons(LISP_AFI_IP);
-    map_request->source_eid.s_addr           = inet_addr("0.0.0.0");
+    map_request->source_eid.s_addr           = 0;			/* inet_addr("0.0.0.0") */
     map_request->originating_itr_rloc.s_addr = my_addr->s_addr; 
     map_request->reserved1                   = 0;
     map_request->eid_prefix.s_addr           = inet_addr(eid);

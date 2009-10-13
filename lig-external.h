@@ -25,13 +25,14 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig-external.h,v 1.18 2009/10/09 20:10:11 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig-external.h,v 1.19 2009/10/13 00:38:57 dmm Exp $
  *
  */
 
 extern	struct protoent	*proto;
 extern	int		optind;
-extern  int		debug;
+extern  unsigned int	debug;
+extern  unsigned int	udp_checksum_disabled;
 extern	ushort		emr_inner_src_port;
 
 #if !defined(BSD)

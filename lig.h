@@ -27,7 +27,7 @@
  *	Free Software Foundation, Inc., 59 Temple Place - Suite
  *	330, Boston, MA  02111-1307, USA. 
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig.h,v 1.72 2009/10/12 23:43:15 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig.h,v 1.73 2009/10/13 00:38:57 dmm Exp $
  *
  */
 
@@ -72,7 +72,7 @@ typedef enum			{FALSE,TRUE} boolean;
 #define	MAX_EPHEMERAL_PORT	65535
 
 #define	USAGE	"usage: %s [-d] [-m <map resolver>] [-s <source address>] \
-[-c <count>] [-p <port>] [-t <timeout>] [-v] <EID>\n"
+[-c <count>] [-p <port>] [-t <timeout>] [-u] [-v] <EID>\n"
 
 /*
  *	VERSION 
@@ -98,6 +98,16 @@ typedef enum			{FALSE,TRUE} boolean;
  */
 
 #define	CO(addr,len) (((char *) addr + len))
+
+/*
+ *	names for where the udp checksum goes
+ */
+
+#ifdef BSD
+#define udpsum(x) x->uh_sum
+#else
+#define udpsum(x) x->check
+#endif
 
 /*
  * LISP Types

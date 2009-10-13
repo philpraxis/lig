@@ -28,7 +28,7 @@
  *	330, Boston, MA  02111-1307, USA. 
  *
  *
- *	 $Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.59 2009/10/12 23:45:17 dmm Exp $ 
+ *	 $Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.60 2009/10/13 00:38:57 dmm Exp $ 
  *
  */
 
@@ -63,7 +63,7 @@
  *	dmm@1-4-5.net
  *	Thu Apr 16 14:46:51 2009
  *
- *	$Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.59 2009/10/12 23:45:17 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/send_map_request.c,v 1.60 2009/10/13 00:38:57 dmm Exp $
  *
  */
 
@@ -229,20 +229,12 @@ int send_map_request(s,nonce0,nonce1,before,eid,map_resolver,my_addr)
     map_request->eid_prefix_afi              = htons(LISP_AFI_IP);
     map_request->eid_mask_len		     = LISP_IP_MASK_LEN;
 
-    iph->ip_sum				     = ip_checksum(packet, ip_len);
+    iph->ip_sum				     = ip_checksum(packet,ip_len);
 
-#ifdef BSD
-    udph->uh_sum			     = udp_checksum(udph,
-							    udp_len,
-							    iph->ip_src.s_addr,
-							    iph->ip_dst.s_addr);
-#else
-    udph->check				     = udp_checksum(udph,
-							    udp_len,
-							    iph->ip_src.s_addr,
-							    iph->ip_dst.s_addr);
-#endif
-
+    if (udp_checksum_disabled)
+	udpsum(udph) = 0;
+    else
+	udpsum(udph) = udp_checksum(udph,udp_len,iph->ip_src.s_addr,iph->ip_dst.s_addr);
 
     /*
      *	Set up to talk to the map-resolver

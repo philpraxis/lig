@@ -27,7 +27,7 @@
  *	Free Software Foundation, Inc., 59 Temple Place - Suite
  *	330, Boston, MA  02111-1307, USA. 
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.100 2009/10/12 23:43:15 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.101 2009/10/13 00:38:57 dmm Exp $
  *
  */
 
@@ -43,7 +43,6 @@ int			r;			/* receive socket */
 
 
 unsigned int		*nonce;
-int			debug = 0;
 struct sockaddr_in	map_resolver_addr;
 uchar			packet[MAX_IP_PACKET];
 
@@ -54,6 +53,14 @@ uchar			packet[MAX_IP_PACKET];
 struct ip		*iph;
 struct udphdr		*udph;
 struct map_reply_pkt	*map_reply;
+
+/*
+ *	global options 
+ */
+
+unsigned int udp_checksum_disabled	= 0;
+unsigned int debug			= 0;
+
 
 int main(int argc, char *argv[])
 {
@@ -100,7 +107,7 @@ int main(int argc, char *argv[])
      */  
 
     int  opt		= 0;
-    char *optstring	= "c:dm:p:t:s:v";
+    char *optstring	= "c:dm:p:t:s:uv";
 
     while ((opt = getopt (argc, argv, optstring)) != -1) {
 	switch (opt) {
@@ -143,6 +150,9 @@ int main(int argc, char *argv[])
 			argv[0], MIN_MR_TIMEOUT,MAX_MR_TIMEOUT);
 		exit(BAD);
 	    }
+	    break;
+	case 'u':
+	    udp_checksum_disabled = 1;
 	    break;
 	case 'v':
 	    fprintf(stderr, VERSION, argv[0]);

@@ -30,7 +30,7 @@
  *	Free Software Foundation, Inc., 59 Temple Place - Suite
  *	330, Boston, MA  02111-1307, USA. 
  *
- *	$Header: /home/dmm/lisp/lig/RCS/get_my_ip_addr.c,v 1.15 2009/10/09 16:23:02 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/get_my_ip_addr.c,v 1.17 2009/10/13 15:54:08 dmm Exp $
  *
  */
 
@@ -50,7 +50,10 @@
 unsigned int usable_addr(addr)
      char	*addr;
 {
-    return(strcmp(LOOPBACK,addr) && strncmp(V4EID,addr,V4EID_PREFIX_LEN));
+    if (disallow_eid)			/* don't allow an EID as the source in the innner IP header */
+	return(strcmp(LOOPBACK,addr) && strncmp(V4EID,addr,V4EID_PREFIX_LEN));
+    else
+	return(strcmp(LOOPBACK,addr));
 }
 
 /*
@@ -69,7 +72,6 @@ void get_my_ip_addr(my_addr)
 
     struct	ifaddrs		*ifaddr;
     struct	ifaddrs		*ifa;
-    char			*addr; 
     int				afi;
 
     if (getifaddrs(&ifaddr) == -1) {
@@ -80,9 +82,9 @@ void get_my_ip_addr(my_addr)
     for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next) {
 	afi = ifa->ifa_addr->sa_family;
 	if (afi == AF_INET) {
-	    addr = inet_ntoa(((struct sockaddr_in *)(ifa->ifa_addr))->sin_addr);
-	    if (usable_addr(addr)) {
-		memcpy((void *) my_addr, (void *) &((struct sockaddr_in *)(ifa->ifa_addr))->sin_addr,
+	    if (usable_addr(inet_ntoa(((struct sockaddr_in *)(ifa->ifa_addr))->sin_addr))) {
+		memcpy((void *) my_addr,
+		       (void *) &((struct sockaddr_in *)(ifa->ifa_addr))->sin_addr,
 		       sizeof(struct in_addr));
 		return;
 	    }

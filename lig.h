@@ -27,7 +27,7 @@
  *	Free Software Foundation, Inc., 59 Temple Place - Suite
  *	330, Boston, MA  02111-1307, USA. 
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig.h,v 1.73 2009/10/13 00:38:57 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig.h,v 1.75 2009/10/13 16:04:42 dmm Exp $
  *
  */
 
@@ -71,8 +71,8 @@ typedef enum			{FALSE,TRUE} boolean;
 #define	MIN_EPHEMERAL_PORT	32768
 #define	MAX_EPHEMERAL_PORT	65535
 
-#define	USAGE	"usage: %s [-d] [-m <map resolver>] [-s <source address>] \
-[-c <count>] [-p <port>] [-t <timeout>] [-u] [-v] <EID>\n"
+#define	USAGE	"usage: %s [-c <count>] [-d] [-e] [-m <map resolver>] [-p <port>] \
+[-s <source address>] [-t <timeout>] [-u] [-v] <EID>\n"
 
 /*
  *	VERSION 

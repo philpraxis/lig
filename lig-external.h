@@ -25,13 +25,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig-external.h,v 1.19 2009/10/13 00:38:57 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig-external.h,v 1.20 2009/10/13 15:54:08 dmm Exp $
  *
  */
 
-extern	struct protoent	*proto;
-extern	int		optind;
 extern  unsigned int	debug;
+extern  unsigned int	disallow_eid;
 extern  unsigned int	udp_checksum_disabled;
 extern	ushort		emr_inner_src_port;
 
@@ -42,5 +41,4 @@ extern char		*strdup();
 #endif
 
 extern ushort		csum ();
-extern void		get_my_ip_addr();
 extern long		tvdiff();

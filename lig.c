@@ -27,7 +27,7 @@
  *	Free Software Foundation, Inc., 59 Temple Place - Suite
  *	330, Boston, MA  02111-1307, USA. 
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.101 2009/10/13 00:38:57 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.103 2009/10/13 15:54:08 dmm Exp $
  *
  */
 
@@ -59,6 +59,7 @@ struct map_reply_pkt	*map_reply;
  */
 
 unsigned int udp_checksum_disabled	= 0;
+unsigned int disallow_eid		= 0;
 unsigned int debug			= 0;
 
 
@@ -89,11 +90,9 @@ int main(int argc, char *argv[])
     int  mr_length	= 0;
 
     int i		= 0;		/* generic counter */
-    unsigned int port	= 0;		/* if -p <port> specified, put it in here to find overflow */
     unsigned int iseed  = 0;		/* initial random number generator */
     unsigned int nonce0 = 0;
     unsigned int nonce1 = 0;   
-    emr_inner_src_port	= 0;		
 
     /*
      *	Get defaults
@@ -101,13 +100,15 @@ int main(int argc, char *argv[])
 
     int  count		= COUNT;
     int	 timeout	= MAP_REPLY_TIMEOUT;
+    unsigned int port	= 0;		/* if -p <port> specified, put it in here to find overflow */
+    emr_inner_src_port	= 0;		
 
     /*
      *	parse args
      */  
 
     int  opt		= 0;
-    char *optstring	= "c:dm:p:t:s:uv";
+    char *optstring	= "c:dem:p:t:s:uv";
 
     while ((opt = getopt (argc, argv, optstring)) != -1) {
 	switch (opt) {
@@ -122,6 +123,9 @@ int main(int argc, char *argv[])
 	    break;
 	case 'd':
 	    debug = 1;
+	    break;
+	case 'e':
+	    disallow_eid = 1;
 	    break;
 	case 'p':
 	    if ((port = atoi(optarg)) > MAX_EPHEMERAL_PORT) {

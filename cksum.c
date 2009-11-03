@@ -27,13 +27,15 @@
  *	Free Software Foundation, Inc., 59 Temple Place - Suite
  *	330, Boston, MA  02111-1307, USA. 
  *
- *	$Header: /home/dmm/lisp/lig/RCS/cksum.c,v 1.5 2009/10/12 23:43:15 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/cksum.c,v 1.6 2009/10/14 22:13:13 dmm Exp $
  *
  */
 
 #include	"lig.h"
 
-ushort ip_checksum (unsigned short *buf, int nwords)
+ushort ip_checksum (buf, nwords)
+    unsigned short *buf;
+    int            nwords; 
 {
     unsigned long sum;
 
@@ -57,8 +59,8 @@ ushort ip_checksum (unsigned short *buf, int nwords)
  *	src	-	the IP source address (in network format).
  *	dest	-	the IP destination address (in network format).
  *
- *	Returns:
- *		The result of the checksum.
+ *	Returns:        The result of the checksum
+ *
  */
 
 uint16_t udp_checksum (buff,len,src,dest)

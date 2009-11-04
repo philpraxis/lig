@@ -35,7 +35,7 @@
  *	Free Software Foundation, Inc., 59 Temple Place - Suite
  *	330, Boston, MA  02111-1307, USA. 
  *
- *	$Header: /home/dmm/lisp/lig/RCS/print.c,v 1.28 2009/10/12 23:43:15 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/print.c,v 1.30 2009/11/04 00:05:51 dmm Exp $
  *
  */
 
@@ -210,7 +210,7 @@ void print_map_reply(map_reply,requested_eid,mr_to,mr_from,elapsed_time)
 	    loctype = (struct lisp_map_reply_loctype *)
 		CO(eidtype->eid_prefix, sizeof(struct in_addr));
 
-	    printf("  %-32s%-10s%-10s\n","Locator","State","Priority/Weight");
+	    printf("  %-40s%-10s%-10s\n","Locator","State","Priority/Weight");
 
 	    /*
 	     * loop through the locators (per record)
@@ -225,7 +225,7 @@ void print_map_reply(map_reply,requested_eid,mr_to,mr_from,elapsed_time)
 		    exit(BAD);
 		}
 		sprintf(pw, "%d/%d", loctype->priority, loctype->weight);
-		printf("  %-32s%-10s%-10s\n",
+		printf("  %-40s%-10s%-10s\n",
 		       formatted_addr,
 		       loctype->reach_bit ? "up" : "down",
 		       pw);

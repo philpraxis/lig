@@ -27,7 +27,7 @@
  *	Free Software Foundation, Inc., 59 Temple Place - Suite
  *	330, Boston, MA  02111-1307, USA. 
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig.h,v 1.75 2009/10/13 16:04:42 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig.h,v 1.76 2009/11/10 01:52:32 dmm Exp $
  *
  */
 
@@ -169,7 +169,7 @@ typedef enum			{FALSE,TRUE} boolean;
  */
 
 struct lisp_control_pkt {
- #ifdef __LITTLE_ENDIAN
+ #ifdef LITTLE_ENDIAN
     int rsvd:4;
     int type:4;
  #else
@@ -208,7 +208,7 @@ struct lisp_control_pkt {
  */ 
 
 struct map_request_pkt {
-#ifdef __LITTLE_ENDIAN
+#ifdef LITTLE_ENDIAN
 	uchar           smr_bit:1;
 	uchar           rloc_probe:1;
 	uchar           map_data_present:1;
@@ -272,7 +272,7 @@ struct map_request_pkt {
  */ 
 
 struct map_reply_pkt {
-#ifdef __LITTLE_ENDIAN
+#ifdef LITTLE_ENDIAN
      int            rsvd:2;
      int            echo_nonce_capable:1;
      int            rloc_probe:1;
@@ -296,7 +296,7 @@ struct lisp_map_reply_eidtype {
     unsigned int	record_ttl;
     uchar 		loc_count;
     uchar 		eid_mask_len;
-#ifdef __LITTLE_ENDIAN
+#ifdef LITTLE_ENDIAN
     int			reserved:3;
     int			mobility_bit:1;
     int			auth_bit:1;
@@ -319,7 +319,7 @@ struct lisp_map_reply_loctype {
     uchar   mpriority;
     uchar   mweight;
     uchar   unused_flags1;
-#ifdef __LITTLE_ENDIAN
+#ifdef LITTLE_ENDIAN
     uchar   reach_bit:1;
     uchar   unused_flags2:7;
 #else

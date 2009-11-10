@@ -27,7 +27,7 @@
  *	Free Software Foundation, Inc., 59 Temple Place - Suite
  *	330, Boston, MA  02111-1307, USA. 
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.103 2009/10/13 15:54:08 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig.c,v 1.104 2009/11/10 05:10:47 dmm Exp $
  *
  */
 
@@ -83,7 +83,7 @@ int main(int argc, char *argv[])
     char *eid_name	= NULL;
     char *mr_name	= NULL;
     char *progname	= NULL;
-    char *map_resolver	= getenv(DEFAULT_MAP_RESOLVER); /* check for env var */
+    char *map_resolver	= getenv(LISP_MAP_RESOLVER); /* check for env var */
     int  eid_addrtype	= 0;
     int  eid_length	= 0;
     int  mr_addrtype	= 0;
@@ -201,7 +201,7 @@ int main(int argc, char *argv[])
     if (map_resolver == NULL) {
         fprintf(stderr,
 		"%s not set and -m not specified\n",
-		DEFAULT_MAP_RESOLVER);
+		LISP_MAP_RESOLVER);
 	fprintf(stderr, USAGE, progname);
 	exit(BAD);
     }

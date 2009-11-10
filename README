@@ -6,7 +6,7 @@
 #	dmm@1-4-5.net
 #	Mon Jul 20 14:24:33 2009
 #
-#	$Header: /home/dmm/lisp/lig/RCS/README,v 1.8 2009/09/29 02:01:50 dmm Exp $
+#	$Header: /home/dmm/lisp/lig/RCS/README,v 1.9 2009/11/10 05:09:09 dmm Exp $
 #
 
 	
@@ -15,11 +15,11 @@
 		formats as well as 64 bit control plane nonces.
 
 09232009:
-		Add the DEFAULT_MAP_RESOLVER environment
+		Add the LISP_MAP_RESOLVER environment
 		variable. This needs to be the RLOC of a map
 		resolver. The -m flag overrides this environment
 		variable, and you must specify either
-		DEFAULT_MAP_RESOLVER or -m.
+		LISP_MAP_RESOLVER or -m.
 
 09282009:
 

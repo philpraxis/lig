@@ -27,7 +27,7 @@
  *	Free Software Foundation, Inc., 59 Temple Place - Suite
  *	330, Boston, MA  02111-1307, USA. 
  *
- *	$Header: /home/dmm/lisp/lig/RCS/lig.h,v 1.76 2009/11/10 01:52:32 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/lig.h,v 1.77 2009/11/10 05:10:55 dmm Exp $
  *
  */
 
@@ -64,7 +64,7 @@ typedef enum			{FALSE,TRUE} boolean;
 #define MAP_REPLY_TIMEOUT	2	/* seconds */
 #define	MIN_MR_TIMEOUT		1	/* seconds */
 #define	MAX_MR_TIMEOUT		5	/* seconds */
-#define	DEFAULT_MAP_RESOLVER	"DEFAULT_MAP_RESOLVER"
+#define	LISP_MAP_RESOLVER	"LISP_MAP_RESOLVER"
 #define	LOOPBACK		"127.0.0.1"
 #define	V4EID		        "153.16"
 #define	V4EID_PREFIX_LEN        6	/* characters in "153.16" */

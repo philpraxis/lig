@@ -361,6 +361,7 @@ int main(int argc, char *argv[])
 	}					/* timed out */
     }
     printf("*** No map-reply received ***\n");
+    exit(GOOD);
 }
 
 

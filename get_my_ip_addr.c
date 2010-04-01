@@ -80,6 +80,8 @@ void get_my_ip_addr(my_addr)
     }
 
     for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next) {
+        if (ifa->ifa_addr == NULL)
+	    continue;
 	afi = ifa->ifa_addr->sa_family;
 	if (afi == AF_INET) {
 	    if (usable_addr(inet_ntoa(((struct sockaddr_in *)(ifa->ifa_addr))->sin_addr))) {

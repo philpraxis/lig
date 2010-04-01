@@ -84,7 +84,7 @@ typedef enum			{FALSE,TRUE} boolean;
  *      ZZ is the lig version
  */
 
-#define	VERSION "%s version 05.04.04\n"
+#define	VERSION "%s version 06.04.05\n"
 
 
 /*

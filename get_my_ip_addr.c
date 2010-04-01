@@ -30,7 +30,7 @@
  *	Free Software Foundation, Inc., 59 Temple Place - Suite
  *	330, Boston, MA  02111-1307, USA. 
  *
- *	$Header: /home/dmm/lisp/lig/RCS/get_my_ip_addr.c,v 1.17 2009/10/13 15:54:08 dmm Exp $
+ *	$Header: /home/dmm/lisp/lig/RCS/get_my_ip_addr.c,v 1.18 2010/02/27 19:10:17 dmm Exp $
  *
  */
 
@@ -80,7 +80,7 @@ void get_my_ip_addr(my_addr)
     }
 
     for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next) {
-        if (ifa->ifa_addr == NULL)
+	if (ifa->ifa_addr == NULL)
 	    continue;
 	afi = ifa->ifa_addr->sa_family;
 	if (afi == AF_INET) {

@@ -10,6 +10,9 @@
  *	dmm@1-4-5.net
  *	Thu Apr  9 09:44:57 2009
  *
+ *	IPv6 support added by Lorand Jakab <lj@icanhas.net>
+ *	Mon Aug 23 15:26:51 2010 +0200
+ *
  *	This program is free software; you can redistribute it
  *	and/or modify it under the terms of the GNU General
  *	Public License as published by the Free Software
@@ -43,7 +46,6 @@ int			r;			/* receive socket */
 
 
 unsigned int		*nonce;
-struct sockaddr_in	map_resolver_addr;
 uchar			packet[MAX_IP_PACKET];
 
 /*
@@ -66,13 +68,13 @@ unsigned int debug			= 0;
 int main(int argc, char *argv[])
 {
 
-    struct hostent	*hostent;
-    struct timeval	before;
-    struct timeval	after;
-    struct protoent	*proto;
-    struct sockaddr_in	me;
-    struct sockaddr_in	from;
-    struct in_addr	my_addr; 
+    struct addrinfo	    hints;
+    struct addrinfo	    *res;
+    struct timeval	    before;
+    struct timeval	    after;
+    struct protoent	    *proto;
+    struct sockaddr_storage from;
+    struct sockaddr_storage my_addr; 
 
     /*
      * Remember the requested eid and map resolver properties here 
@@ -89,6 +91,9 @@ int main(int argc, char *argv[])
     int  mr_addrtype	= 0;
     int  mr_length	= 0;
 
+    struct sockaddr_storage eid_addr;
+    struct sockaddr_storage map_resolver_addr;
+
     int i		= 0;		/* generic counter */
     unsigned int iseed  = 0;		/* initial random number generator */
     unsigned int nonce0 = 0;
@@ -102,6 +107,14 @@ int main(int argc, char *argv[])
     int	 timeout	= MAP_REPLY_TIMEOUT;
     unsigned int port	= 0;		/* if -p <port> specified, put it in here to find overflow */
     emr_inner_src_port	= 0;		
+    char  emr_inner_src_port_str[NI_MAXSERV];
+
+    /*
+     * Temporary data
+     */
+
+    int e		= 0;		/* generic errno holder */
+    char buf[NI_MAXHOST];		/* buffer for getnameinfo() results */
 
     /*
      *	parse args
@@ -122,7 +135,7 @@ int main(int argc, char *argv[])
 	    }
 	    break;
 	case 'd':
-	    debug = 1;
+	    debug += 1;
 	    break;
 	case 'e':
 	    disallow_eid = 1;
@@ -212,39 +225,65 @@ int main(int argc, char *argv[])
     }
 
     /*
-     * gethostbyname fails if eid is an IPv6 addresss (obviously)... 
+     * We'll use getaddrinfo() for name lookups.
+     * Explicitly set options by setting up a non-NULL hints
+     */
+
+    memset(&hints, 0, sizeof(struct addrinfo));
+    hints.ai_family    = AF_UNSPEC;	/* Allow IPv4 or IPv6 */
+    hints.ai_socktype  = SOCK_DGRAM;	/* Datagram socket */
+    hints.ai_flags     = AI_ADDRCONFIG;	/* Only return families configured on host */
+    hints.ai_protocol  = 0;		/* Any protocol */
+    hints.ai_canonname = NULL;
+    hints.ai_addr      = NULL;
+    hints.ai_next      = NULL;
+
+    if ((e = getaddrinfo(eid_name, NULL, &hints, &res)) != 0) {
+	fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(e));
+	exit(BAD);
+    }
+
+    /*
+     *  Save the eid, eid_addr, eid_addrtype
      *
      */
 
-    if ((hostent = gethostbyname(eid)) == NULL) {
-	fprintf(stderr, "gethostbyname for %s failed (%s)\n",
-		eid, hstrerror(h_errno));
-	exit(BAD);
+    if (res != NULL) {
+        eid_addrtype = res->ai_family;
+	eid_length = res->ai_addrlen;
+	if ((e = getnameinfo(res->ai_addr,res->ai_addrlen,
+			buf,NI_MAXHOST,NULL,0,NI_NUMERICHOST)) != 0) {
+	    fprintf(stderr,"getnameinfo: %s\n",gai_strerror(e));
+	    exit(BAD);
+	}
+	eid = strdup(buf);
+	memcpy(&eid_addr, res->ai_addr, res->ai_addrlen);
     }
-	
-    /*
-     *  save the eid, eid_addrtype, and length. Should be 
-     *  checking h_addrtype for AF_INET or AF_INET6...
-     */
 
-    eid_addrtype = hostent->h_addrtype;
-    eid_length   = hostent->h_length;
-    eid          = strdup(inet_ntoa(*((struct in_addr *)hostent->h_addr)));
-
-    if ((hostent = gethostbyname(map_resolver)) == NULL) {
-	fprintf(stderr, "gethostbyname for %s failed (%s)\n",
-		map_resolver,
-		hstrerror(h_errno));
-	exit(BAD);
-    }
+    freeaddrinfo(res);
 
     /*
      *  likewise for the map resolver
      */
 
-    mr_addrtype  = hostent->h_addrtype;
-    mr_length    = hostent->h_length;
-    map_resolver = strdup(inet_ntoa(*((struct in_addr *)hostent->h_addr)));
+    if ((e = getaddrinfo(map_resolver, LISP_CONTROL_PORT_STR, &hints, &res)) != 0) {
+	fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(e));
+	exit(BAD);
+    }
+
+    if (res != NULL) {
+        mr_addrtype = res->ai_family;
+	mr_length = res->ai_addrlen;
+	if ((e = getnameinfo(res->ai_addr,res->ai_addrlen,
+			buf,NI_MAXHOST,NULL,0,NI_NUMERICHOST)) != 0) {
+	    fprintf(stderr,"getnameinfo: %s\n",gai_strerror(e));
+	    exit(BAD);
+	}
+	map_resolver = strdup(buf);
+	memcpy(&map_resolver_addr, res->ai_addr, res->ai_addrlen);
+    }
+
+    freeaddrinfo(res);
 
     /*
      *	get an array of nonces of size 2*count
@@ -262,23 +301,38 @@ int main(int argc, char *argv[])
 	exit(BAD);
     }
 
-    if ((s = socket(AF_INET,SOCK_DGRAM,proto->p_proto)) < 0) {
+    if ((s = socket(mr_addrtype,SOCK_DGRAM,proto->p_proto)) < 0) {
 	perror("SOCK_DGRAM (s)");
 	exit(1);
     }
 
-    if ((r = socket(AF_INET,SOCK_DGRAM,proto->p_proto)) < 0) {
+    if ((r = socket(mr_addrtype,SOCK_DGRAM,proto->p_proto)) < 0) {
 	perror("SOCK_DGRAM (r)");
 	exit(1);
     }
 
-    if (src_ip_addr) 
-	my_addr.s_addr = inet_addr(src_ip_addr); 
-    else 
-	get_my_ip_addr(&my_addr); 
+    if (src_ip_addr) {
+	if ((e = getaddrinfo(src_ip_addr, NULL, &hints, &res)) != 0) {
+	    fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(e));
+	    exit(BAD);
+	}
+	memcpy(&my_addr, res->ai_addr, res->ai_addrlen);
+	freeaddrinfo(res);
+    } else 
+	if (get_my_ip_addr(mr_addrtype,&my_addr)) {
+	    fprintf(stderr, "No usable %s source address\n",
+		    (mr_addrtype == AF_INET) ? "IPv4" : "IPv6");
+	    exit(BAD);
+	}
 
-    if (debug)
-        printf("Using source address %s...\n", inet_ntoa(my_addr));
+    if (debug) {
+	if ((e = getnameinfo((struct sockaddr *)&my_addr,SA_LEN(my_addr.ss_family),
+			buf,NI_MAXHOST,NULL,0,NI_NUMERICHOST)) != 0) {
+	    fprintf(stderr,"getnameinfo: %s\n",gai_strerror(e));
+	    exit(BAD);
+	}
+        printf("Using source address (ITR-RLOC) %s\n", buf);
+    }
 
     /* 
      *	Initialize the random number generator for the nonces
@@ -296,37 +350,55 @@ int main(int argc, char *argv[])
 	    random() % (MAX_EPHEMERAL_PORT - MIN_EPHEMERAL_PORT);
 
     memset(packet,       0, MAX_IP_PACKET);
-    memset((char *) &me, 0, sizeof(me));
 
-    me.sin_port        = htons(emr_inner_src_port); 
-    me.sin_family      = AF_INET;
-    me.sin_addr.s_addr = INADDR_ANY;
+    memset(&hints, 0, sizeof(struct addrinfo));
+    hints.ai_family    = mr_addrtype;	/* Bind on AF based on AF of Map-Resolver */
+    hints.ai_socktype  = SOCK_DGRAM;	/* Datagram socket */
+    hints.ai_flags     = AI_PASSIVE;	/* For wildcard IP address */
+    hints.ai_protocol  = proto->p_proto;
+    hints.ai_canonname = NULL;
+    hints.ai_addr      = NULL;
+    hints.ai_next      = NULL;
 
-    if (bind(r,(struct sockaddr *) &me, sizeof(me)) == -1) {
+    sprintf(emr_inner_src_port_str, "%d", emr_inner_src_port);
+    if ((e = getaddrinfo(NULL, emr_inner_src_port_str, &hints, &res)) != 0) {
+	fprintf(stderr, "getting local socket: getaddrinfo: %s\n", gai_strerror(e));
+	exit(BAD);
+    }
+
+    if (bind(r, res->ai_addr, res->ai_addrlen) == -1) {
 	perror("bind");
 	exit(BAD);
     }
+
+    freeaddrinfo(res);
 
     for (i = 0; i < count; i++) {
 
         build_nonce(nonce,i,&nonce0,&nonce1);
 
-	if (debug)
+	if (debug) {
+	    if ((e = getnameinfo((struct sockaddr *)(&map_resolver_addr), mr_length,
+			    buf,NI_MAXHOST,NULL,0,NI_NUMERICHOST)) != 0) {
+		fprintf(stderr,"getnameinfo: %s\n",gai_strerror(e));
+		exit(BAD);
+	    }
+
 	    printf("Send map-request to %s (%s) for %s (%s) ...\n",
 		   mr_name,
-		   map_resolver,
+		   buf,
 		   eid_name,
 		   eid);
-        else
+	} else
 	    printf("Send map-request to %s for %s ...\n", mr_name, eid_name);
 
 	if (send_map_request(s,
 			     nonce0,
 			     nonce1,
 			     &before,
-			     eid,
-			     map_resolver,
-			     &my_addr)) {
+			     (struct sockaddr *)&eid_addr,
+			     (struct sockaddr *)&map_resolver_addr,
+			     (struct sockaddr *)&my_addr)) {
 	    fprintf(stderr, "send_map_request: can't send map-request\n");
 	    exit(BAD);
 	}
@@ -337,16 +409,22 @@ int main(int argc, char *argv[])
 		return(BAD);
 	    }
 
-	    if (!get_map_reply(r, packet, &from))
+	    if (!get_map_reply(r, packet, mr_addrtype, &from))
 		continue;			/* try again if count left */
 
 	    map_reply = (struct map_reply_pkt *) packet;
+
+	    if ((e = getnameinfo((struct sockaddr *)&from,SA_LEN(from.ss_family),
+			    buf,NI_MAXHOST,NULL,0,NI_NUMERICHOST)) != 0) {
+		fprintf(stderr,"getnameinfo: %s\n",gai_strerror(e));
+		exit(BAD);
+	    }
 
 	    if (find_nonce(map_reply,nonce, (i+1))) {
 		print_map_reply(map_reply,
 				eid,
 				map_resolver,
-				strdup(inet_ntoa(from.sin_addr)),
+				strdup(buf),
 				tvdiff(&after,&before));
 		exit(GOOD);
 	    } else {	                    /* Otherwise assume its spoofed */

@@ -10,6 +10,9 @@
  *	dmm@1-4-5.net
  *	Thu Apr 16 14:50:33 2009
  *
+ *	IPv6 support added by Lorand Jakab <lj@icanhas.net>
+ *	Mon Aug 23 15:26:51 2010 +0200
+ *
  *	This program is free software; you can redistribute it
  *	and/or modify it under the terms of the GNU General
  *	Public License as published by the Free Software
@@ -66,8 +69,13 @@ typedef enum			{FALSE,TRUE} boolean;
 #define	MAX_MR_TIMEOUT		5	/* seconds */
 #define	LISP_MAP_RESOLVER	"LISP_MAP_RESOLVER"
 #define	LOOPBACK		"127.0.0.1"
+#define	LOOPBACK6		"::1"
+#define	LINK_LOCAL		"fe80"
+#define	LINK_LOCAL_LEN		4
 #define	V4EID		        "153.16"
 #define	V4EID_PREFIX_LEN        6	/* characters in "153.16" */
+#define	V6EID		        "2610:00d0"
+#define	V6EID_PREFIX_LEN        9	/* characters in "2610:00d0" */
 #define	MIN_EPHEMERAL_PORT	32768
 #define	MAX_EPHEMERAL_PORT	65535
 
@@ -84,7 +92,7 @@ typedef enum			{FALSE,TRUE} boolean;
  *      ZZ is the lig version
  */
 
-#define	VERSION "%s version 05.04.06\n"
+#define	VERSION "%s version 07.05.07\n"
 
 
 /*
@@ -98,6 +106,15 @@ typedef enum			{FALSE,TRUE} boolean;
  */
 
 #define	CO(addr,len) (((char *) addr + len))
+
+/*
+ *      SA_LEN --
+ *
+ *      sockaddr length
+ *
+ */
+
+#define SA_LEN(a) ((a == AF_INET) ? sizeof(struct sockaddr_in) : sizeof(struct sockaddr_in6))
 
 /*
  *	names for where the udp checksum goes
@@ -118,6 +135,7 @@ typedef enum			{FALSE,TRUE} boolean;
 #define	LISP_MAP_REGISTER	3
 #define LISP_ENCAP_CONTROL_TYPE 8
 #define	LISP_CONTROL_PORT	4342
+#define	LISP_CONTROL_PORT_STR	"4342"
 
 /*
  *	Map Reply action codes
@@ -137,6 +155,7 @@ typedef enum			{FALSE,TRUE} boolean;
 #define LISP_AFI_IP		1
 #define LISP_AFI_IPV6		2
 #define	LISP_IP_MASK_LEN	32
+#define	LISP_IPV6_MASK_LEN	128
 
 
 
@@ -182,30 +201,33 @@ struct lisp_control_pkt {
 /* 
  *	Map-Request Message Format 
  *    
- *         0                   1                   2                   3 
- *         0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 
- *        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ 
- *        |Type=1 |A|M|P|S|         Reserved              | Record Count  | 
- *        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ 
- *        |                         Nonce . . .                           | 
- *        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ 
- *        |                         . . . Nonce                           | 
- *        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ 
- *        |         Source-EID-AFI        |            ITR-AFI            | 
- *        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ 
- *        |                   Source EID Address  ...                     | 
- *        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ 
- *        |                Originating ITR RLOC Address ...               | 
- *        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ 
- *      / |   Reserved    | EID mask-len  |        EID-prefix-AFI         | 
- *    Rec +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ 
- *      \ |                       EID-prefix  ...                         | 
- *        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ 
- *        |                   Map-Reply Record  ...                       | 
- *        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ 
- *        |                     Mapping Protocol Data                     | 
- *        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ 
- */ 
+ *        0                   1                   2                   3
+ *        0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+ *       +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *       |Type=1 |A|M|P|S|       Reserved      |   IRC   | Record Count  |
+ *       +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *       |                         Nonce . . .                           |
+ *       +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *       |                         . . . Nonce                           |
+ *       +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *       |         Source-EID-AFI        |   Source EID Address  ...     |
+ *       +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *       |         ITR-RLOC-AFI 1        |    ITR-RLOC Address 1  ...    |
+ *       +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *       |                              ...                              |
+ *       +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *       |         ITR-RLOC-AFI n        |    ITR-RLOC Address n  ...    |
+ *       +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *     / |   Reserved    | EID mask-len  |        EID-prefix-AFI         |
+ *   Rec +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *     \ |                       EID-prefix  ...                         |
+ *       +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *       |                   Map-Reply Record  ...                       |
+ *       +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *       |                     Mapping Protocol Data                     |
+ *       +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *
+ */
 
 struct map_request_pkt {
 #ifdef LITTLE_ENDIAN
@@ -221,18 +243,27 @@ struct map_request_pkt {
 	uchar           rloc_probe:1;
 	uchar           smr_bit:1;
 #endif
-	ushort          reserved;
+	uchar           reserved1;
+#ifdef LITTLE_ENDIAN
+	ushort          irc:5;
+        uchar           reserved2:3;
+#else
+        uchar           reserved2:3;
+	ushort          irc:5;
+#endif
 	uchar           record_count;
 	unsigned int    lisp_nonce0;
 	unsigned int    lisp_nonce1;
 	ushort          source_eid_afi;
 	ushort          itr_afi;
-	struct in_addr	source_eid;
-	struct in_addr	originating_itr_rloc;
-	uchar 		reserved1;
+        uchar           originating_itr_rloc[0];
+} __attribute__ ((__packed__));
+
+struct map_request_eid {
+	uchar 		reserved;
 	uchar 		eid_mask_len;
 	ushort		eid_prefix_afi;
-	struct in_addr	eid_prefix;
+        uchar           eid_prefix[0];
 } __attribute__ ((__packed__));
 
 

@@ -18,6 +18,9 @@
  *	dmm@1-4-5.net
  *	Thu Apr 23 15:34:18 2009
  *
+ *	IPv6 support added by Lorand Jakab <lj@icanhas.net>
+ *	Mon Aug 23 15:26:51 2010 +0200
+ *
  *	This program is free software; you can redistribute it
  *	and/or modify it under the terms of the GNU General
  *	Public License as published by the Free Software
@@ -166,7 +169,6 @@ void print_map_reply(map_reply,requested_eid,mr_to,mr_from,elapsed_time)
 {
     char			   pw[8];
     char			   buf[256];
-    struct in_addr		   *eid;
     struct lisp_map_reply_eidtype  *eidtype	   = NULL;
     struct lisp_map_reply_loctype  *loctype        = NULL; 
     const char			   *formatted_addr = NULL;
@@ -179,16 +181,9 @@ void print_map_reply(map_reply,requested_eid,mr_to,mr_from,elapsed_time)
 
     printf("Received map-reply from %s with rtt %2.5f secs\n",
 	   mr_from, (double) elapsed_time/1000);
-    printf("\nMapping entry for EID %s:\n", requested_eid);
+    printf("\nMapping entry for EID '%s':\n", requested_eid);
 
     record_count = map_reply->record_count;
-
-    /*
-     *	loop through the Records
-     *
-     *	Assumes the EID-prefix is v4
-     *
-     */	
 
     eidtype = (struct lisp_map_reply_eidtype *) &map_reply->data;
 
@@ -197,18 +192,24 @@ void print_map_reply(map_reply,requested_eid,mr_to,mr_from,elapsed_time)
      */
 
     for (record = 0; record < record_count; record++) {
-        locator_count = eidtype->loc_count;
-	eid           = (struct in_addr *) &eidtype->eid_prefix;
+        set_afi_and_addr_offset(ntohs(eidtype->eid_afi),
+                &afi,&addr_offset);
+	if ((formatted_addr = inet_ntop(afi, &eidtype->eid_prefix,
+                        buf, sizeof(buf))) == NULL) {
+            perror("inet_ntop");
+	    exit(BAD);
+        }
 
-	printf("%s/%d,", inet_ntoa(*eid),eidtype->eid_mask_len);
+	printf("%s/%d,",formatted_addr,eidtype->eid_mask_len);
 	printf(" via map-reply, record ttl: %d, %s, %s\n", 
 	       ntohl(eidtype->record_ttl), 
 	       eidtype->auth_bit ? "auth" : "not auth", 
 	       eidtype->mobility_bit ? "mobile" : "not mobile");
 
+        locator_count = eidtype->loc_count;
 	if (locator_count) {		/* have some locators */
 	    loctype = (struct lisp_map_reply_loctype *)
-		CO(eidtype->eid_prefix, sizeof(struct in_addr));
+		CO(eidtype->eid_prefix, addr_offset);
 
 	    printf("  %-40s%-10s%-10s\n","Locator","State","Priority/Weight");
 
@@ -248,7 +249,7 @@ void print_map_reply(map_reply,requested_eid,mr_to,mr_from,elapsed_time)
  *
  *
  */
-
+/*
 void print_map_request(map_request)
     struct map_request_pkt *map_request;
 {
@@ -270,8 +271,6 @@ void print_map_request(map_request)
 	   ntohs(map_request->source_eid_afi));
     printf("itr_afi\t\t\t= %d\n", 
 	   ntohs(map_request->itr_afi));
-    printf("source_eid\t\t= %s\n",
-           inet_ntoa(map_request->source_eid));
     printf("originating_itr_rloc\t= %s\n",
            inet_ntoa(map_request->originating_itr_rloc));
     printf("reserved1\t\t= %d\n",map_request->reserved1);
@@ -283,3 +282,4 @@ void print_map_request(map_request)
 
 
 }
+*/

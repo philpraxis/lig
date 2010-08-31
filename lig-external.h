@@ -34,7 +34,9 @@ extern  unsigned int	disallow_eid;
 extern  unsigned int	udp_checksum_disabled;
 extern	ushort		emr_inner_src_port;
 
-#if !defined(BSD)
+#ifdef BSD
+#include <string.h>
+#else
 extern void		*memcpy();
 extern void		*memset();
 extern char		*strdup();

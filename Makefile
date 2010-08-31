@@ -48,7 +48,7 @@ MISC     = Makefile README
 #	compile/load options
 #
 CC	 = gcc
-CFLAGS   = -g -DDEBUG=3
+CFLAGS   = -Wall -Wno-implicit-function-declaration
 LDLIBS   = 
 LDFLAGS  = 
 #

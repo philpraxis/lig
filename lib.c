@@ -10,6 +10,9 @@
  *	dmm@1-4-5.net
  *	Thu Apr 23 15:37:01 2009
  *
+ *	IPv6 support added by Lorand Jakab <lj@icanhas.net>
+ *	Mon Aug 23 15:26:51 2010 +0200
+ *
  *	This program is free software; you can redistribute it
  *	and/or modify it under the terms of the GNU General
  *	Public License as published by the Free Software
@@ -64,7 +67,7 @@ long tvdiff(last,first)
  *
  */
 
-wait_for_response(s,timeout)
+int wait_for_response(s,timeout)
   int s;
   int timeout;
 {
@@ -92,21 +95,22 @@ wait_for_response(s,timeout)
  *	Retrieve a map-reply from socket r
  */
 
-get_map_reply(r,packet, from)
+int get_map_reply(r,packet,afi,from)
 	int			r;
 	uchar			*packet;
-	struct sockaddr_in	*from;
+	int			afi;
+	struct sockaddr		*from;
 {
 
-    int fromlen = sizeof(struct sockaddr_in);
+    socklen_t fromlen = SA_LEN(afi);
 
-    memset((char *) from, 0, sizeof(*from));
+    memset((char *) from, 0, fromlen);
 
     if (recvfrom(r,
 		 packet,
 		 MAX_IP_PACKET,
 		 0,
-		 (struct sockaddr *) from,
+		 from,
 		 &fromlen) < 0) {
 	perror("recvfrom");
 	exit(BAD);
@@ -153,7 +157,7 @@ void build_nonce(nonce,i,nonce0,nonce1)
  *	09/10/2009:	nonce increased to 64 bits
  */
 
-find_nonce(map_reply, nonce, count)
+int find_nonce(map_reply, nonce, count)
   struct   map_reply_pkt *map_reply;
   unsigned int	         *nonce;
   int		          count;

@@ -1,5 +1,5 @@
 #
-#	Make the LISP Internet Grouper (lig)
+#	Make the LISP Internet Groper (lig)
 #
 #	By David Meyer <dmm@1-4-5.net>
 #	Copyright 2009 David Meyer

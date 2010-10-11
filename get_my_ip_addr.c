@@ -100,9 +100,12 @@ int get_my_ip_addr(afi,my_addr)
 	    continue;
 	if (usable_addr(ifa->ifa_addr)) {
 	    memcpy((void *) my_addr,ifa->ifa_addr,SA_LEN(afi));
+	    freeifaddrs(ifaddr);
 	    return 0;
 	}
     }
+
+    freeifaddrs(ifaddr);
     return -1;
 }
 

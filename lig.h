@@ -13,6 +13,10 @@
  *	IPv6 support added by Lorand Jakab <lj@icanhas.net>
  *	Mon Aug 23 15:26:51 2010 +0200
  *
+ *      Machine parsable output added by Job Snijders <job@instituut.net>
+ *      Wed Dec 15 11:38:42 CET 2010
+ * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *     o Redistributions of source code must retain the above copyright
@@ -85,7 +89,7 @@ typedef enum			{FALSE,TRUE} boolean;
 #define	MIN_EPHEMERAL_PORT	32768
 #define	MAX_EPHEMERAL_PORT	65535
 
-#define	USAGE	"usage: %s [-c <count>] [-d] [-e] [-m <map resolver>] [-p <port>] \
+#define	USAGE	"usage: %s [-b] [-c <count>] [-d] [-e] [-m <map resolver>] [-p <port>] \
 [-s <source address>] [-t <timeout>] [-u] [-v] <EID>\n"
 
 /*
@@ -98,7 +102,7 @@ typedef enum			{FALSE,TRUE} boolean;
  *      ZZ is the lig version
  */
 
-#define	VERSION "%s version 08.05.08\n"
+#define	VERSION "%s version 08.05.09\n"
 
 
 /*

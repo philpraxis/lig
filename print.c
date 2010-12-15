@@ -20,6 +20,9 @@
  *
  *	IPv6 support added by Lorand Jakab <lj@icanhas.net>
  *	Mon Aug 23 15:26:51 2010 +0200
+ *	
+ *	Machine parsable output added by Job Snijders <job@instituut.net>
+ *	Wed Dec 15 11:38:42 CET 2010
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -108,8 +111,17 @@ void print_udp_header(udph)
 void print_negative_cache_entry(action)
      int	action;
 {
+
+ if (machinereadable) {
+    printf("RESULT=\"Negative cache entry\"\n");
+ }
+ else {
     printf("  Negative cache entry, action: ");
-    switch (action) {
+ }
+
+ if (machinereadable) printf("ACTION=");
+ 
+ switch (action) {
     case LISP_ACTION_NO_ACTION:
 	printf("no-action\n");
 	break;
@@ -123,7 +135,8 @@ void print_negative_cache_entry(action)
 	printf("send-map-request\n");
 	break;
     default:
-	printf("unknown-action (%d)\n", action);
+        if (machinereadable) printf("\"unknown-action (%d)\"\n", action);
+	else printf("unknown-action (%d)\n", action);
 	break;
     }		
 }
@@ -185,8 +198,13 @@ void print_map_reply(map_reply,requested_eid,mr_to,mr_from,elapsed_time)
     int				   record          = 0;    
     int				   locator         = 0;
 
-    printf("Received map-reply from %s with rtt %2.5f secs\n",
+    if (machinereadable) 
+           printf("RECEIVED_FROM=%s\nRTT=%2.5f\n", mr_from, (double) elapsed_time/1000);
+    else 
+           printf("Received map-reply from %s with rtt %2.5f secs\n",
 	   mr_from, (double) elapsed_time/1000);
+
+    if (!machinereadable)   
     printf("\nMapping entry for EID '%s':\n", requested_eid);
 
     record_count = map_reply->record_count;
@@ -205,19 +223,28 @@ void print_map_reply(map_reply,requested_eid,mr_to,mr_from,elapsed_time)
             perror("inet_ntop");
 	    exit(BAD);
         }
-
+        locator_count = eidtype->loc_count;
+        if (machinereadable) {
+            printf("LOCATOR_COUNT=%i\n", locator_count);
+            printf("MAPPING_ENTRY=%s/%d\n", formatted_addr,eidtype->eid_mask_len);
+            printf("TTL=%d\nAUTH=%s\nMOBILE=%s\n",
+               ntohl(eidtype->record_ttl), 
+               eidtype->auth_bit ? "1" : "0", 
+               eidtype->mobility_bit ? "1" : "0");
+        }
+        else {                                  
 	printf("%s/%d,",formatted_addr,eidtype->eid_mask_len);
 	printf(" via map-reply, record ttl: %d, %s, %s\n", 
 	       ntohl(eidtype->record_ttl), 
 	       eidtype->auth_bit ? "auth" : "not auth", 
 	       eidtype->mobility_bit ? "mobile" : "not mobile");
+        }
 
-        locator_count = eidtype->loc_count;
 	if (locator_count) {		/* have some locators */
 	    loctype = (struct lisp_map_reply_loctype *)
 		CO(eidtype->eid_prefix, addr_offset);
 
-	    printf("  %-40s%-10s%-10s\n","Locator","State","Priority/Weight");
+	    if (!machinereadable) printf("  %-40s%-10s%-10s\n","Locator","State","Priority/Weight");
 
 	    /*
 	     * loop through the locators (per record)
@@ -231,12 +258,28 @@ void print_map_reply(map_reply,requested_eid,mr_to,mr_from,elapsed_time)
 		    perror("inet_ntop");
 		    exit(BAD);
 		}
+
+
+		if (machinereadable) {
+		printf("LOCATOR%i=%s\nLOCATOR%i_STATE=%s\nLOCATOR%i_PRIORITY=%d\nLOCATOR%i_WEIGHT=%d\n",
+		       locator,
+		       formatted_addr,
+		       locator,
+		       loctype->reach_bit ? "up" : "down",
+		       locator,
+		       loctype->priority,
+		       locator,
+		       loctype->weight);
+		       
+		}
+		else {
 		sprintf(pw, "%d/%d", loctype->priority, loctype->weight);
 		printf("  %-40s%-10s%-10s\n",
 		       formatted_addr,
 		       loctype->reach_bit ? "up" : "down",
 		       pw);
 
+                }
 		loctype = (struct lisp_map_reply_loctype *)
 		    CO(loctype, (sizeof(struct lisp_map_reply_loctype) + addr_offset)); 
 	    }

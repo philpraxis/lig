@@ -13,6 +13,9 @@
  *	IPv6 support added by Lorand Jakab <lj@icanhas.net>
  *	Mon Aug 23 15:26:51 2010 +0200
  *
+ *      Machine parsable output added by Job Snijders <job@instituut.net>
+ *      Wed Dec 15 11:38:42 CET 2010
+ *  
  *Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *     o Redistributions of source code must retain the above copyright
@@ -69,6 +72,7 @@ struct map_reply_pkt	*map_reply;
 unsigned int udp_checksum_disabled	= 0;
 unsigned int disallow_eid		= 0;
 unsigned int debug			= 0;
+unsigned int machinereadable		= 0;
 
 
 int main(int argc, char *argv[])
@@ -127,10 +131,13 @@ int main(int argc, char *argv[])
      */  
 
     int  opt		= 0;
-    char *optstring	= "c:dem:p:t:s:uv";
+    char *optstring	= "bc:dem:p:t:s:uv";
 
     while ((opt = getopt (argc, argv, optstring)) != -1) {
 	switch (opt) {
+	case 'b':
+	    machinereadable += 1;
+	    break;
 	case 'c':
 	    count = atoi(optarg);
 	    if ((count < MIN_COUNT) || (count > MAX_COUNT)) {
@@ -395,7 +402,10 @@ int main(int argc, char *argv[])
 		   buf,
 		   eid_name,
 		   eid);
-	} else
+	} else if (machinereadable && i == 0) {
+            printf("MAPRESOLVER=%s\nEID=%s\n", mr_name, eid_name);
+            }                  	
+        else if (!machinereadable)
 	    printf("Send map-request to %s for %s ...\n", mr_name, eid_name);
 
 	if (send_map_request(s,
@@ -431,7 +441,8 @@ int main(int argc, char *argv[])
 				eid,
 				map_resolver,
 				strdup(buf),
-				tvdiff(&after,&before));
+				tvdiff(&after,&before),
+				machinereadable);
 		exit(GOOD);
 	    } else {	                    /* Otherwise assume its spoofed */
 		printf("Spoofed map-reply: 0x%08x/0x%08x-0x%08x/0x%08x\n",

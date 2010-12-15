@@ -39,6 +39,7 @@
  */
 
 extern  unsigned int	debug;
+extern	unsigned int	machinereadable;
 extern  unsigned int	disallow_eid;
 extern  unsigned int	udp_checksum_disabled;
 extern	ushort		emr_inner_src_port;
